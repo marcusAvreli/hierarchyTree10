@@ -1,0 +1,13 @@
+.org-tree-layout {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-org-tree-title {
+  flex: 0 0 10%;
+}
+
+.app-org-tree-main {
+  flex: 1 0 90%;
+}

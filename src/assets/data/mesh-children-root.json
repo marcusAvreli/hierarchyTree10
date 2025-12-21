@@ -1,0 +1,12 @@
+[
+  {
+    "name": "Anatomy",
+    "address": "A",
+    "hasChildren": true
+  },
+  {
+    "name": "Head",
+    "address": "A01.456",
+    "hasChildren": true
+  }
+]

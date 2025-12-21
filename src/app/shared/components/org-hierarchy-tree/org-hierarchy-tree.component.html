@@ -1,0 +1,14 @@
+<div class="tree-wrapper">
+
+  <div class="search-bar">
+    <input #searchBox 
+           type="text" 
+           placeholder="Search by address..." 
+           (keydown.enter)="search(searchBox.value)" />
+ <p *ngIf="noMore">⚠️ All index loaded, no more chunks</p>
+    <button (click)="search(searchBox.value)">Search</button>
+  </div>
+
+  <div #svgContainer class="svg-container"></div>
+
+</div>

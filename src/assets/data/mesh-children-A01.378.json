@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Amputation Stumps",
+    "address": "A01.378.100",
+    "hasChildren": false
+  },
+  {
+    "name": "Lower Extremity",
+    "address": "A01.378.610",
+    "hasChildren": true
+  },
+  {
+    "name": "Upper Extremity",
+    "address": "A01.378.800",
+    "hasChildren": true
+  }
+]

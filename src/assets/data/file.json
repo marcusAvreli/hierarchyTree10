@@ -1,0 +1,216 @@
+{
+  "httpCode": 200,
+  "httpMessage": "OK",
+  "code": 0,
+  "message": "Success",
+  "data": [
+    {
+      "id": "2e89ad2f55ea40c4af1f7fb34bead824",
+      "name": "יעל עשת",
+      "firstName": "יעל",
+      "lastName": "עשת",
+      "teudatZehut": "964164628",
+      "gender": "female",
+      "birthday": 11138400000,
+      "jobBeginDate": 1120510800000,
+      "title": "President",
+      "companyCode": "003",
+      "companyName": "Johnston and Sons",
+      "contractCode": 0,
+      "email": ".58956@example.com",
+      "positionCode": 0,
+      "childrenLoaded": true,
+      "parentPath": [],
+      "childrenIds": [
+        "48cd03fcbbd843d18bd722ac51e60791"
+      ]
+    },
+    {
+      "id": "f6651cb2d1f54a248c6c1ded6d6821da",
+      "name": "נועם יוטבת",
+      "firstName": "נועם",
+      "lastName": "יוטבת",
+      "teudatZehut": "799093802",
+      "gender": "male",
+      "birthday": -324352800000,
+      "jobBeginDate": 730332000000,
+      "title": "Team Manager",
+      "companyCode": "003",
+      "companyName": "Johnston and Sons",
+      "managerId": "752cc47a6da84f789e3741abb92a7fcc",
+      "contractCode": 0,
+      "email": ".61760@example.com",
+      "positionCode": 0,
+      "childrenLoaded": true,
+      "parentPath": [
+        "2e89ad2f55ea40c4af1f7fb34bead824",
+        "48cd03fcbbd843d18bd722ac51e60791",
+        "2e4a1807d1914614970d801993ea93ba",
+        "1480c2adc67d4a41b55090a15fdc03ab",
+        "641a5e5cafb84aa1a1a5fcba1bb2057e",
+        "752cc47a6da84f789e3741abb92a7fcc"
+      ],
+      "childrenIds": [
+        "000982a7c7b740c3bb84073b5df46b1c"
+      ]
+    },
+    {
+      "id": "641a5e5cafb84aa1a1a5fcba1bb2057e",
+      "name": "יוסף חרל\"פ",
+      "firstName": "יוסף",
+      "lastName": "חרל\"פ",
+      "teudatZehut": "144756541",
+      "gender": "male",
+      "birthday": 402184800000,
+      "jobBeginDate": 1555880400000,
+      "title": "Area Manager",
+      "companyCode": "003",
+      "companyName": "Johnston and Sons",
+      "managerId": "1480c2adc67d4a41b55090a15fdc03ab",
+      "contractCode": 0,
+      "email": ".58994@example.com",
+      "positionCode": 0,
+      "childrenLoaded": true,
+      "parentPath": [
+        "2e89ad2f55ea40c4af1f7fb34bead824",
+        "48cd03fcbbd843d18bd722ac51e60791",
+        "2e4a1807d1914614970d801993ea93ba",
+        "1480c2adc67d4a41b55090a15fdc03ab"
+      ],
+      "childrenIds": [
+        "752cc47a6da84f789e3741abb92a7fcc"
+      ]
+    },
+    {
+      "id": "48cd03fcbbd843d18bd722ac51e60791",
+      "name": "מיטליה קטן",
+      "firstName": "מיטליה",
+      "lastName": "קטן",
+      "teudatZehut": "682808993",
+      "gender": "female",
+      "birthday": 273621600000,
+      "jobBeginDate": 1414620000000,
+      "title": "CEO",
+      "companyCode": "003",
+      "companyName": "Johnston and Sons",
+      "managerId": "2e89ad2f55ea40c4af1f7fb34bead824",
+      "contractCode": 0,
+      "email": ".58957@example.com",
+      "positionCode": 0,
+      "childrenLoaded": true,
+      "parentPath": [
+        "2e89ad2f55ea40c4af1f7fb34bead824"
+      ],
+      "childrenIds": [
+        "2e4a1807d1914614970d801993ea93ba"
+      ]
+    },
+    {
+      "id": "752cc47a6da84f789e3741abb92a7fcc",
+      "name": "אסתר שומרון",
+      "firstName": "אסתר",
+      "lastName": "שומרון",
+      "teudatZehut": "631609021",
+      "gender": "female",
+      "birthday": 948578400000,
+      "jobBeginDate": 1554066000000,
+      "title": "Branch Manager",
+      "companyCode": "003",
+      "companyName": "Johnston and Sons",
+      "managerId": "641a5e5cafb84aa1a1a5fcba1bb2057e",
+      "contractCode": 0,
+      "email": ".61759@example.com",
+      "positionCode": 0,
+      "childrenLoaded": true,
+      "parentPath": [
+        "2e89ad2f55ea40c4af1f7fb34bead824",
+        "48cd03fcbbd843d18bd722ac51e60791",
+        "2e4a1807d1914614970d801993ea93ba",
+        "1480c2adc67d4a41b55090a15fdc03ab",
+        "641a5e5cafb84aa1a1a5fcba1bb2057e"
+      ],
+      "childrenIds": [
+        "f6651cb2d1f54a248c6c1ded6d6821da"
+      ]
+    },
+    {
+      "id": "1480c2adc67d4a41b55090a15fdc03ab",
+      "name": "תמר בר נתן",
+      "firstName": "תמר",
+      "lastName": "בר נתן",
+      "teudatZehut": "930443312",
+      "gender": "female",
+      "birthday": 739746000000,
+      "jobBeginDate": 1423605600000,
+      "title": "Division Manager",
+      "companyCode": "003",
+      "companyName": "Johnston and Sons",
+      "managerId": "2e4a1807d1914614970d801993ea93ba",
+      "contractCode": 0,
+      "email": ".58991@example.com",
+      "positionCode": 0,
+      "childrenLoaded": true,
+      "parentPath": [
+        "2e89ad2f55ea40c4af1f7fb34bead824",
+        "48cd03fcbbd843d18bd722ac51e60791",
+        "2e4a1807d1914614970d801993ea93ba"
+      ],
+      "childrenIds": [
+        "641a5e5cafb84aa1a1a5fcba1bb2057e"
+      ]
+    },
+    {
+      "id": "000982a7c7b740c3bb84073b5df46b1c",
+      "name": "חיים פרץ",
+      "firstName": "חיים",
+      "lastName": "פרץ",
+      "teudatZehut": "208918128",
+      "gender": "male",
+      "birthday": -408333600000,
+      "jobBeginDate": 932763600000,
+      "title": "Employee",
+      "companyCode": "003",
+      "companyName": "Johnston and Sons",
+      "managerId": "f6651cb2d1f54a248c6c1ded6d6821da",
+      "contractCode": 0,
+      "email": ".61761@example.com",
+      "positionCode": 0,
+      "childrenLoaded": false,
+      "parentPath": [
+        "2e89ad2f55ea40c4af1f7fb34bead824",
+        "48cd03fcbbd843d18bd722ac51e60791",
+        "2e4a1807d1914614970d801993ea93ba",
+        "1480c2adc67d4a41b55090a15fdc03ab",
+        "641a5e5cafb84aa1a1a5fcba1bb2057e",
+        "752cc47a6da84f789e3741abb92a7fcc",
+        "f6651cb2d1f54a248c6c1ded6d6821da"
+      ],
+      "childrenIds": []
+    },
+    {
+      "id": "2e4a1807d1914614970d801993ea93ba",
+      "name": "רחל יפרח",
+      "firstName": "רחל",
+      "lastName": "יפרח",
+      "teudatZehut": "289424236",
+      "gender": "female",
+      "birthday": 1076277600000,
+      "jobBeginDate": 1668031200000,
+      "title": "CTO",
+      "companyCode": "003",
+      "companyName": "Johnston and Sons",
+      "managerId": "48cd03fcbbd843d18bd722ac51e60791",
+      "contractCode": 0,
+      "email": ".58961@example.com",
+      "positionCode": 0,
+      "childrenLoaded": true,
+      "parentPath": [
+        "2e89ad2f55ea40c4af1f7fb34bead824",
+        "48cd03fcbbd843d18bd722ac51e60791"
+      ],
+      "childrenIds": [
+        "1480c2adc67d4a41b55090a15fdc03ab"
+      ]
+    }
+  ]
+}

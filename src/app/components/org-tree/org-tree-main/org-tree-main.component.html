@@ -1,0 +1,15 @@
+<div style="height:100vh;">
+	<app-org-hierarchy-tree  
+		[myNodes]="rawData"
+		(nodeClick)="handleNodeClick2($event)"
+		[loadChildrenRequest]="ensureChildrenRaw.bind(this)"
+		  [getTargetsForSearch]="getTargetsForSearch.bind(this)"
+		    [memoryIndex]="memoryIndex"
+		[updateTrigger]="updateTreeTrigger"
+[objectCache]="objectCache"
+[tzIndex]="tzIndex"
+[emailIndex]="emailIndex"
+[phoneIndex]="phoneIndex"
+		>
+    </app-org-hierarchy-tree>
+</div>

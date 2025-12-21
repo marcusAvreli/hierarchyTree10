@@ -1,0 +1,16 @@
+#tree-container {
+  display: inline-block;      
+  min-width: 100%;
+  min-height: 100vh;       /* full viewport */
+   // overflow: auto;       /* show scroll only when needed */
+ 
+  background-color: #f7f9fc;
+ // background-color: red;
+ 
+  //justify-content: center; /* horizontally center SVG */
+}
+
+#tree-svg {
+  display: block;      /* allows SVG to expand vertically */
+  min-width: 960px;    /* ensure horizontal space */
+}

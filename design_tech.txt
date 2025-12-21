@@ -1,0 +1,4 @@
+ng generate component containers/org-tree-container
+
+ng generate component components/org-tree/org-tree-title
+ng generate component components/org-tree/org-tree-main

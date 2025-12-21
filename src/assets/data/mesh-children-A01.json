@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Anatomic Landmarks",
+    "address": "A01.111",
+    "hasChildren": false
+  },
+  {
+    "name": "Breast",
+    "address": "A01.236",
+    "hasChildren": true
+  },
+  {
+    "name": "Extremities",
+    "address": "A01.378",
+    "hasChildren": true
+  }
+]
