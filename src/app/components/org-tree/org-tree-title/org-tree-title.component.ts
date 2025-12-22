@@ -66,6 +66,8 @@ constructor(private readonly orgNodeService: OrgNodeService
     this.initData();
 	//this.loadData();
 	 console.log(" rootNode_loaded:", this.root);
+	
+	  
     this.update(this.root);
   }
 
@@ -276,190 +278,70 @@ console.log("layoutFirstLevelChess: ", " stepY:",stepY, " stepX:",stepX);
     row++;
   }
 }
-  /*
-private layoutFirstLevelChess(): void {
-  if (!this.root || !this.root.children?.length) return;
 
-  const children = this.root.children;
-
-  // ---------------- PASS 1: GEOMETRY ----------------
-
-  const svgEl = this.svgRef.nativeElement;
-  const svgWidth = svgEl.clientWidth || 800;
-  
-  
-	const usableWidth =
-    svgWidth - this.marginLeft - this.marginRight;
- 
-  
-  // how many nodes fit in one row
-  const cols = Math.max(
-    this.minCols,
-    Math.min(
-      Math.floor(usableWidth / this.cellX),
-      this.maxCols
-    )
-  );
-  
-   const total = children.length;
-  const rows = Math.ceil(total / cols);
-   this.loggerService.info("layoutFirstLevelChess ","svgWidth:",svgWidth, "this.cellX:",this.cellX, " usableWidth:",usableWidth, " cols_in_one_row:",cols, " rows:",rows);
-   
-   
-  // ---------------- PASS 2: POSITIONING ----------------
-   
-   
-   let index = 0;
-
-  for (let row = 0; row < rows; row++) {
-    const nodesInRow = Math.min(cols, total - index);
-	
-	
-	// CENTER THIS ROW AROUND X = 0
-    const startX = -((nodesInRow - 1) / 2) * this.cellX;
-	this.loggerService.info("layoutFirstLevelChess ", " nodesInRow:",nodesInRow, " startX:",startX);
-	
-	for (let col = 0; col < nodesInRow; col++) {
-      const node = children[index++];
-
-      node.x = startX + col * this.cellX;
-
-      // chess stagger
-      node.y =
-        this.baseY +
-        row * this.cellY +
-        (col % 2 === 1 ? this.cellY / 2 : 0);
-this.loggerService.info("layoutFirstLevelChess ", node.x," ", node.y);
-      // layout deeper children relative to this node
-	  this.layoutSubtree(node);
-	}
-  }
-}
-*/
   // ---------------- UPDATE ----------------
-  private update(source: any) {
+	private update(source: any) {
 
-  //  const tree = d3.tree().nodeSize([80, 100]);
-  const tree = d3.tree()
-    .nodeSize([this.nodeWidth + this.nodePaddingX, this.nodeHeight + this.nodePaddingY]);
-    tree(this.root);
+		//  const tree = d3.tree().nodeSize([80, 100]);
+		// const tree = d3.tree()
+		// .nodeSize([this.nodeWidth + this.nodePaddingX, this.nodeHeight + this.nodePaddingY]);
+		// tree(this.root);
 
-    // Root fixed at top
-    this.root.x = 0;
-    this.root.y = 0;
-// First-level children: chess layout
-this.cols = this.computeCols();
-
-// responsive chess layout
-let remainingNodes = this.root.children?.length || 0;
-let rowStartIndex = 0;
-let y = this.baseY;
+		// Root fixed at top
+		this.root.x = 0;
+		this.root.y = 0;
+		// First-level children: chess layout
+		this.cols = this.computeCols();
 
 
-//layout
-this.layoutFirstLevelChess();
-/*
-while (remainingNodes > 0) {
-  const nodesThisRow = Math.min(this.cols, remainingNodes);
- // const spacing = this.cellX * (this.cols / nodesThisRow);
- const spacing = this.cellX;
-  console.log({spacing:spacing,cellX:this.cellX,cols:this.cols,nodesThisRow:nodesThisRow,remainingNodes:remainingNodes});
-  // first node X based on alignment
-  let firstNodeX = 0;
-  if (nodesThisRow === this.cols) {
-    // full row: always center
-    firstNodeX = -((this.cols - 1) / 2) * this.cellX;
-  } else {
-    // partial row
-    switch (this.partialRowAlign) {
-      case 'left':
-        firstNodeX = -((this.cols - 1) / 2) * this.cellX;
-        break;
-      case 'center':
-        //firstNodeX = -((nodesThisRow - 1)) * this.cellX;
-		firstNodeX = -spacing ;
-		console.log("firstNodeX:",firstNodeX," nodesThisRow:",nodesThisRow, " this.cellX:",this.cellX, " spacing:",spacing);
-        break;
-      case 'right':
-       // firstNodeX = ((this.cols - nodesThisRow) / 2) * this.cellX;
-	   firstNodeX = -spacing ;
-        break;
-    }
-  }
+		//layout
+		this.layoutFirstLevelChess();
 
-  for (let i = 0; i < nodesThisRow; i++) {
-    const node = this.root.children![rowStartIndex + i];
+		const nodes = this.root.descendants();
+		const links = this.root.links();
+		// ---------------- NODES ----------------
+		const node = this.g.selectAll('g.node')
+		  .data(nodes, (d:any) => d.data.id);
 
-    // horizontal position
-    node.x = firstNodeX + i* this.cellX;
-console.log("node_x:",node.x," nodesThisRow:",nodesThisRow," this.cols:",this.cols);
-    // vertical stagger: only for full rows
-    node.y = y;
-    //if (nodesThisRow === this.cols && i % 2 === 1) {
-	if (nodesThisRow === this.cols && i % 2 === 1) {
-      node.y += this.cellY / 2;
-    }else{
-		if(i % 2 === 1){
-		
-			node.y += this.cellY / 2;
-		}
-		//node.y = y
-	}
+		const nodeEnter = node.enter()
+			.append('g')
+			.attr('class', 'node')
+			.attr('transform', (_:any) => `translate(${source.x0},${source.y0})`)
+			.on('click', (_ : any, d:any) => this.toggle(d));
 
-    this.layoutSubtree(node);
-  }
+		nodeEnter.append('rect')
+			.attr('x', -this.nodeWidth / 2)
+			.attr('y', -this.nodeHeight / 2)
+			.attr('width', this.nodeWidth)
+			.attr('height', this.nodeHeight)
+			.attr('rx', 10)
+			.attr('fill', (d:any) => d.depth === 0 ? '#1e3c95' : '#484795');
+		  
+		nodeEnter.append('text')
+			.attr('y', -6)
+			.attr('text-anchor', 'middle')
+			.attr('fill', 'white')
+			.attr('font-weight', 600)
+			.text((d:any) => `${d.data.firstName} ${d.data.lastName}`);
 
-  remainingNodes -= nodesThisRow;
-  rowStartIndex += nodesThisRow;
-  y += this.cellY;
-}
-*/
-    const nodes = this.root.descendants();
-    const links = this.root.links();
-
-    // ---------------- NODES ----------------
-    const node = this.g.selectAll('g.node')
-      .data(nodes, (d:any) => d.data.id);
-
-    const nodeEnter = node.enter()
-      .append('g')
-      .attr('class', 'node')
-      .attr('transform', (_:any) => `translate(${source.x0},${source.y0})`)
-      .on('click', (_ : any, d:any) => this.toggle(d));
-
-nodeEnter.append('rect')
-  .attr('x', -this.nodeWidth / 2)
-  .attr('y', -this.nodeHeight / 2)
-  .attr('width', this.nodeWidth)
-  .attr('height', this.nodeHeight)
-  .attr('rx', 10)
-  .attr('fill', (d:any) => d.depth === 0 ? '#020617' : '#1d4ed8');
-  
-nodeEnter.append('text')
-  .attr('y', -6)
-  .attr('text-anchor', 'middle')
-  .attr('fill', 'white')
-  .attr('font-weight', 600)
-  .text((d:any) => `${d.data.firstName} ${d.data.lastName}`);
-
-nodeEnter.append('text')
-  .attr('y', 14)
-  .attr('text-anchor', 'middle')
-  .attr('fill', '#e5e7eb')
-  .attr('font-size', '11px')
-  .text((d:any) => d.data.divisionName);
+		nodeEnter.append('text')
+			.attr('y', 14)
+			.attr('text-anchor', 'middle')
+			.attr('fill', '#e5e7eb')
+			.attr('font-size', '11px')
+			.text((d:any) => d.data.divisionName);
 
 
-    nodeEnter.merge(node as any)
-      .transition()
-      .duration(this.duration)
-      .attr('transform', (d:any) => `translate(${d.x},${d.y})`);
+		nodeEnter.merge(node as any)
+			.transition()
+			.duration(this.duration)
+			.attr('transform', (d:any) => `translate(${d.x},${d.y})`);
 
-    node.exit()
-      .transition()
-      .duration(this.duration)
-      .attr('transform', (_:any) => `translate(${source.x},${source.y})`)
-      .remove();
+		node.exit()
+			.transition()
+			.duration(this.duration)
+			.attr('transform', (_:any) => `translate(${source.x},${source.y})`)
+			.remove();
 
     // ---------------- LINKS ----------------
     const link = this.g.selectAll('path.link')
@@ -512,35 +394,20 @@ private layoutSubtree(parent: any) {
 }
   // ---------------- LINK PATH (ANTI-OVERLAP) ----------------
   private linkPath(d: any): string {
-    /*const sx = d.source.x;
-   const sy = d.source.y + this.nodeHeight / 2;
-
-    const tx = d.target.x;
- const ty = d.target.y - this.nodeHeight / 2;
-
-    const midY = (sy + ty) / 2;
-
-    return `
-      M ${sx},${sy}
-      C ${sx},${midY}
-        ${tx},${midY}
-        ${tx},${ty}
-    `;
-	*/
-	 const sx = d.source.x;
+   const sx = d.source.x;
   const sy = d.source.y + this.nodeHeight / 2;
 
   const tx = d.target.x;
   const ty = d.target.y - this.nodeHeight / 2;
 
-  // elbow: vertical first, then horizontal
+  const midY = sy + 30; // small drop, avoids sibling illusion
+
   return `
     M ${sx},${sy}
-    V ${(sy + ty) / 2}
+    V ${midY}
     H ${tx}
     V ${ty}
   `;
-
   }
   
 private centerTree(animate = true) {
