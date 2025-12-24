@@ -1,13 +1,20 @@
 .org-tree-layout {
+	border: solid 15px black;
   height: 100%;
   display: flex;
+ // display:block;
   flex-direction: column;
+  box-sizing: border-box;
 }
 
 .app-org-tree-title {
   flex: 0 0 10%;
+   box-sizing: border-box;
+   border: solid 10px black;
 }
 
 .app-org-tree-main {
-  flex: 1 0 90%;
+  flex: 1 1 90%;
+   box-sizing: border-box;
+   border: solid 10px black;
 }

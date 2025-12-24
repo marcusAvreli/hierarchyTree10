@@ -1,3 +1,4 @@
+ng generate component containers/app-app-container
 ng generate component containers/org-tree-container
 
 ng generate component components/org-tree/org-tree-title

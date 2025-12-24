@@ -9,13 +9,15 @@ import { OrgTreeMainComponent } from './components/org-tree/org-tree-main/org-tr
 import { CONFIG } from '../app-config';
 import { CoreModule } from './core/core.module';
 import { SharedModule } from './shared/shared.module';
+import { AppAppContainerComponent } from './containers/app-app-container/app-app-container.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     OrgTreeContainerComponent,
     OrgTreeTitleComponent,
-    OrgTreeMainComponent
+    OrgTreeMainComponent,
+    AppAppContainerComponent
   ],
   imports: [
    BrowserModule,

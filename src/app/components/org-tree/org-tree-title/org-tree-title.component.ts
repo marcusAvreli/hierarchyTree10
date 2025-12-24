@@ -132,94 +132,87 @@ if (!rootNode) return;
       });
   }
   private initData() {
-     const data: TreeNode = {
-    id: 'ceo',
-    firstName: 'Daniel',
-    lastName: 'Cohen',
-    divisionName: 'Executive',
+	const data: TreeNode = {
+		id: 'ceo',
+		firstName: 'Daniel',
+		lastName: 'Cohen',
+		divisionName: 'Executive',
 
-    children: [
-      {
-        id: 'd1',
-        firstName: 'Sarah',
-        lastName: 'Levi',
-        divisionName: 'Finance'
-		/*,children: [
-          { id: 'd1a', firstName: 'Noam', lastName: 'Bar', divisionName: 'Finance Ops' },
-          { id: 'd1b', firstName: 'Yael', lastName: 'Sharon', divisionName: 'Payroll' }
-        ]
-		*/
-      },
-      {
-        id: 'd2',
-        firstName: 'Amit',
-        lastName: 'Katz',
-        divisionName: 'Engineering'
-		/*, children: [
-          { id: 'd2a', firstName: 'Eyal', lastName: 'Ben-David', divisionName: 'Backend' },
-          { id: 'd2b', firstName: 'Lior', lastName: 'Gold', divisionName: 'Frontend' }
-        ]*/
-      },
-      {
-        id: 'd3',
-        firstName: 'Rina',
-        lastName: 'Mor',
-        divisionName: 'HR'
-      }
-	  ,
-      {
-        id: 'd4',
-        firstName: 'Moshe',
-        lastName: 'Azulai',
-        divisionName: 'Sales'
-      }
-	  ,
-      {
-        id: 'd5',
-        firstName: 'Tal',
-        lastName: 'Noy',
-        divisionName: 'Marketing'
-      }
-	  ,
-      {
-        id: 'd6',
-        firstName: 'Yossi',
-        lastName: 'Halevi',
-        divisionName: 'Support'
-      }
-	  ,
-      {
-        id: 'd7',
-        firstName: 'Dana',
-        lastName: 'Peretz',
-        divisionName: 'Operations'
-      },
-      {
-        id: 'd8',
-        firstName: 'Itai',
-        lastName: 'Friedman',
-        divisionName: 'Security'
-      }
-	  ,{
-        id: 'd9',
-        firstName: 'Maya',
-        lastName: 'Ron',
-        divisionName: 'Product'
-      }
-	  ,
-      {
-        id: 'd10',
-        firstName: 'Omer',
-        lastName: 'Ziv',
-        divisionName: 'IT'
-      }
-	  ,
-      {
-        id: 'd11',
-        firstName: 'Omer2',
-        lastName: 'Ziv2',
-        divisionName: 'IT2'
-      }
+		children: [
+		{
+			id: 'd1',
+			firstName: 'Sarah',
+			lastName: 'Levi',
+			divisionName: 'Finance'
+
+		},
+		{
+			id: 'd2',
+			firstName: 'Amit',
+			lastName: 'Katz',
+			divisionName: 'Engineering'
+
+		},
+		{
+		id: 'd3',
+		firstName: 'Rina',
+		lastName: 'Mor',
+		divisionName: 'HR'
+		}
+		,
+		{
+			id: 'd4',
+			firstName: 'Moshe',
+			lastName: 'Azulai',
+			divisionName: 'Sales'
+		}
+		,
+		{
+		id: 'd5',
+		firstName: 'Tal',
+		lastName: 'Noy',
+		divisionName: 'Marketing'
+		}
+		,
+		{
+		id: 'd6',
+		firstName: 'Yossi',
+		lastName: 'Halevi',
+		divisionName: 'Support'
+		}
+		,
+		{
+		id: 'd7',
+		firstName: 'Dana',
+		lastName: 'Peretz',
+		divisionName: 'Operations'
+		},
+		{
+		id: 'd8',
+		firstName: 'Itai',
+		lastName: 'Friedman',
+		divisionName: 'Security'
+		}
+		,{
+		id: 'd9',
+		firstName: 'Maya',
+		lastName: 'Ron',
+		divisionName: 'Product'
+		}
+		,
+		{
+		id: 'd10',
+		firstName: 'Omer',
+		lastName: 'Ziv',
+		divisionName: 'IT'
+		}
+		,
+		{
+		id: 'd11',
+		firstName: 'Omer2',
+		lastName: 'Ziv2',
+		divisionName: 'IT2'
+		}
 	  
 	  
     ]

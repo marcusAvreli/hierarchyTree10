@@ -1,5 +1,7 @@
-<div style="height:100vh;">
-	<app-org-hierarchy-tree  
+<div style="height:100%;min-height:100%;display:block;overflow:hidden">
+ddddd
+	
+	<app-org-hierarchy-tree   style="height:100%;display:block;overflow:hidden"
 		[myNodes]="rawData"
 		(nodeClick)="handleNodeClick2($event)"
 		[loadChildrenRequest]="ensureChildrenRaw.bind(this)"
@@ -12,4 +14,6 @@
 [phoneIndex]="phoneIndex"
 		>
     </app-org-hierarchy-tree>
+	
+	
 </div>

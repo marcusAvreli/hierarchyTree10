@@ -94,7 +94,7 @@ private cardHeight = 0;
 	ngAfterViewInit() {
 		console.log("i_called_from","set_after_view_init");
 		const rect = this.svgContainer.nativeElement.getBoundingClientRect();
-console.log('SVG viewport:', rect.width, rect.height);
+console.log('SVG viewport:', rect.width, rect.height,this.svgContainer.nativeElement.clientHeight);
 		this.updateViewSize();
 		this.viewReady = true;
 		//this.tryInit();
@@ -159,8 +159,8 @@ console.log('SVG viewport:', rect.width, rect.height);
 
     this.svg = d3.select(el)
       .append('svg')
-      .attr('width', '100%')
-      .attr('height', '100%')
+      .attr('width', this.width)
+      .attr('height', this.height)
       .attr('viewBox', `0 0 ${this.width} ${this.height}`)
       .attr('preserveAspectRatio', 'xMidYMid meet');
 
@@ -706,9 +706,9 @@ nodeMerge2
 console.log("updateViewSize:","this.width: ",this.width, " this.height:",this.height);
 		if (this.svg) {
 			this.svg
-			.attr('width', '100%')
-			.attr('height', '100%')
-			.attr('viewBox', `0 0 ${this.width} ${this.height}`);
+			//.attr('width', '100%')
+			//.attr('height', '100%')
+			//.attr('viewBox', `0 0 ${this.width} ${this.height}`);
 		}
 	}
 	
