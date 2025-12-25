@@ -25,7 +25,7 @@ export class OrgHierarchyTreeComponent implements OnInit, OnDestroy, AfterViewIn
 	@Input() loadChildrenRequest!: (addr: string) => Promise<any[] | undefined>;
 	@Input() getTargetsForSearch!: (term: string) => Promise<string[]>;
 	@Input() memoryIndex: { address: string; path: string[] }[] = [];
-	
+	@Input() rtl = true;
 	@Input() objectCache: Map<string, any> = new Map<string, any>();
 	@Input() tzIndex = new Map<string, string>();         // TZ → address
 	@Input() emailIndex = new Map<string, string>();      // email → address
@@ -299,8 +299,8 @@ const cardHeight = padding * 3 + 16+100;
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d')!;
   ctx.font = '0.8em sans-serif';
-console.log("cardWidth: ", fields);
-console.log("cardWidth: ", d);
+	console.log("cardWidth: ", fields);
+	console.log("cardWidth: ", d);
   const maxTextWidth = Math.max(
     ...fields.map(f =>
       ctx.measureText(`${f.label} : ${d.data[f.key] ?? ''}`).width
@@ -457,11 +457,15 @@ console.log("cardWidth: ", d);
 			.attr('height', 40)
 			.attr('preserveAspectRatio', 'xMidYMid slice')
 			.attr('href', (d:any) => d.data.imageUrl || 'assets/avatar-placeholder.png');
+			const rtl = this.rtl; // 👈 capture component input
 
 		nodeEnter.each(function(this: SVGGElement, d:any) {
 			const g = d3.select(this);
 			const fields: CardField[] = d.data.ui?.cardFields || [];
-			const textX = imageWidth + padding * 2;
+		//	const textX = imageWidth + padding * 2;
+		const textX = rtl
+		   ? d.cardWidth - imageWidth - padding * 2
+		   : imageWidth + padding * 2;
 			const textStartY = 20;
 			const getCardHeight = ((fields.length || 1) + 1) * nodeHeight + 10;
 			console.log("getCardHeight:",getCardHeight);
@@ -474,7 +478,8 @@ console.log("cardWidth: ", d);
 				.attr('x', textX)
 				.attr('y', textStartY + i * 15)
 				//.attr('y', 400)
-				.attr('text-anchor', 'start')
+				.attr('text-anchor', rtl ? 'end' : 'start')
+				     .attr('direction', rtl ? 'rtl' : 'ltr')
 				.attr('fill', '#fff')
 				.style('font-size', '0.8em')
 				.text(field.label+' : '+d.data[field.key] ?? '')
@@ -500,16 +505,6 @@ console.log("cardWidth: ", d);
 	}
 
 
-/*
-
-  private diagonal(s: any, d: any) {
-    return `M ${s.x},${s.y}
-            C ${(s.x + d.x) / 2},${s.y}
-              ${(s.x + d.x) / 2},${d.y}
-              ${d.x},${d.y}`;
-  }
-
-*/
 
  
 
@@ -780,7 +775,19 @@ private rectLink(source: any, target: any) {
   const endY = ty;
 
   // --- Elbow ---
-  const midY = startY + (endY - startY) / 2;
+//  const midY = startY + (endY - startY) / 2;
+  const midY = (startY + endY) / 2;
+  if (Math.abs(endX - (tx + childWidth / 2)) > 1) {
+    console.warn('LINK X DRIFT', { tx, endX, childWidth, target });
+  }
+  console.log('TARGET', {
+    x: target.x,
+    y: target.y,
+    h: target.cardHeight,
+    w: target.cardWidth,
+    expectedTop: target.y,
+    expectedCenter: target.y - target.cardHeight / 2
+  });
 
   return `
     M ${startX},${startY}
@@ -792,4 +799,3 @@ private rectLink(source: any, target: any) {
 
 
 }
-

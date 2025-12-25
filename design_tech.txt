@@ -1,5 +1,35 @@
+git add -- . :!"node_modules" :!"dist"	
+git rm -r --cached node_modules
+git rm -r --cached dist
+git commit -am "update"
+git push origin master
+
+
+
+
 ng generate component containers/app-app-container
 ng generate component containers/org-tree-container
 
 ng generate component components/org-tree/org-tree-title
 ng generate component components/org-tree/org-tree-main
+
+
+D3 has 3 coordinate spaces
+
+Layout space (tree math)
+
+Root must be at (0, 0)
+
+Children expand relative to root
+
+Tree render space
+
+Still relative (no screen knowledge)
+
+Viewport space
+
+Screen centering, top padding, zoom, pan
+
+📌 Rule:
+👉 Layout code must NEVER know screen width/height
+
