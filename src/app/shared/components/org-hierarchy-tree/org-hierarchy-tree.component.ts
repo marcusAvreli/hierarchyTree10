@@ -7,26 +7,7 @@ import {TreeUtilsService} from '../../../tree-utils.service';
 import { CardField } from '../../../core/models/ui/card-field.model';
 import { NODE_CARD_CONFIG } from '../../../core/models/ui/node-config.model';
 const flextree = (d3flextree as any).flextree;
-//https://github.com/manirajv06/yunikorn-web/blob/c86fb1b38d8a2dd1fcd9f4232669708b88199159/src/app/components/queue-v2/queues-v2.component.ts#L143
-//https://github.com/GSoumyaSri/HRMSWeb/blob/80c17ded6690108adf1f1a3f2ec9e94d0cc4b4f8/src/app/admin/project/d3-org-chart/d3-org-chart.component.ts#L2
-//https://github.com/OxfordHCC/Aretha/blob/ecda51469bf98b3e3a181675d0cce1fa9dab42a5/ui/src/app/layout-timeseries/layout-timeseries.component.ts#L4
-//https://github.com/epfl-dias/proteus/blob/575c0bcfc5d280d2d1c98c0a907302c5ad9d5b22/tools/panorama/src/app/event-timeline.service.ts#L4
-//https://github.com/biosustain/lifelike/blob/master/client/src/app/sankey/abstract/sankey.component.ts#L131
-//https://github.com/open-student-environment/xapi-dashboard/blob/5b832d03fa0986c689f3d98edc06e3458705d248/src/app/home/home.component.ts#L3
-//https://github.com/uevanson/Angular-RSI-Chart/blob/1d2cf0abb9c4ab735e1ab0e2557bd9b94eb81155/ClientApp/src/app/rsi/rsi-chart.component.ts#L126
-//https://github.com/AnishPavuluri/hr-management-ui/blob/64dc80e66cc4dedbb1bba75233b6e09206f1e318/src/app/hr-management/component/claims/claims.component.ts#L5
-//https://github.com/VictorHenrique317/boxcluster-visualization/tree/master/src/app
-//https://github.com/HayfordMD/d3playground-strongside/blob/bcbda4582dcb0f2554a40720c3a41941652b7083/src/app/treemap/treemap.component.ts#L4
-//https://github.com/52North/helgoland-toolbox/blob/627b86bf31d3a3e4c461960e0d9edacb522440d9/projects/helgoland/d3/src/lib/d3-series-graph/d3-series-graph.component.ts#L26
-//animate
-//https://github.com/SDRC-India/dga-ui/blob/0620265576b20d83713b9145329cd87fe1386d8b/src/app/data-tree/sdrc-data-tree/sdrc-data-tree.component.ts#L89
-//zoomin zoomout
-//https://github.com/tezedge/tezedge-explorer/blob/40ff6190616474bc055dc967eb43e02aedaa9a90/src/app/shared/factories/tree-map.factory.ts#L33
 
-//https://github.com/Hamza-ye/geoprism-registry/blob/54dc5ba491d57e6ea37bda15854d54eaaab31ea0/georegistry-web/src/main/ng2/src/app/registry/component/hierarchy/hierarchy.component.ts#L907
-//https://github.com/Bridxo/BoneStory_2/blob/954a14162ceae0fb5fd40f7b290634429309cbd6/src/provenance-tree-visualization.ts#L473
-//https://github.com/senayakagunduz/Zoomable-Treemap-project/tree/f7d2ecdf0ddb4cf049bba60d0a6de7c889f004be/src/app
-//"_children.forEach" "d3.zoomIdentity.translate" "angular/core"
 @Component({
   selector: 'app-org-hierarchy-tree',
  // template: `<div #svgContainer class="svg-container" style="width:100%; height:100%;"></div>`,
@@ -60,8 +41,9 @@ export class OrgHierarchyTreeComponent implements OnInit, OnDestroy, AfterViewIn
 	private height = 0;
 	noMore = false;
 	private duration = 500;
-private cardWidth = 0;
-private cardHeight = 0;
+	private TOP_PADDING = 100;
+	private cardWidth = 0;
+	private cardHeight = 0;
 	// rawData is the plain JSON tree (mutated when lazy-loading children)
 	private rawData: any;
 	// prevPositions map used to preserve previous x/y when we rebuild hierarchy
@@ -94,7 +76,7 @@ private cardHeight = 0;
 	ngAfterViewInit() {
 		console.log("i_called_from","set_after_view_init");
 		const rect = this.svgContainer.nativeElement.getBoundingClientRect();
-console.log('SVG viewport:', rect.width, rect.height,this.svgContainer.nativeElement.clientHeight);
+		console.log('SVG viewport:', rect.width, rect.height,this.svgContainer.nativeElement.clientHeight);
 		this.updateViewSize();
 		this.viewReady = true;
 		//this.tryInit();
@@ -156,7 +138,7 @@ console.log('SVG viewport:', rect.width, rect.height,this.svgContainer.nativeEle
 
     // clear previous svg
     d3.select(el).selectAll('svg').remove();
-
+console.log("create_Svg:",this.width,this.height);
     this.svg = d3.select(el)
       .append('svg')
       .attr('width', this.width)
@@ -212,22 +194,26 @@ console.log("centerOnAddress","3");
 		}
 
 		if (!this.rawData) return;
- // node/card configuration
-  const nodeWidth = 180;
-  const nodeHeight = 180;
-  const imageWidth = 40;
-  const padding = 8;
-  const xOffset = 50;
-		// rebuild hierarchy
-		const root = d3.hierarchy(this.rawData, (d: any) => d.children || null);
-		this.root = root;	
+			// node/card configuration
+			const nodeWidth = 180;
+			const nodeHeight = 180;
+			const imageWidth = 40;
+			const padding = 8;
+			const xOffset = 50;
+			// rebuild hierarchy
+			const root = d3.hierarchy(this.rawData, (d: any) => d.children || null);		
+			this.root = root;
+			
+			
+			
+			this.applyNodeCardConfig(this.rawData);
+			root.each((d: any) => {
+			  this.computeCardSize(d, nodeHeight, imageWidth, padding);
+			});
+			
 		const nodes = this.root.descendants();
-//this.measureCards(nodes, imageWidth, padding, nodeHeight);
-//computeCardSize
-this.applyNodeCardConfig(this.rawData);
-root.each((d: any) => {
-  this.computeCardSize(d, nodeHeight, imageWidth, padding);
-});
+
+
 		// layout with flextree
 		const tree = flextree()
 			.nodeSize((node: any) => [node.cardWidth, node.cardHeight+80]) // card width + height
@@ -241,19 +227,7 @@ root.each((d: any) => {
 		// apply card config (fields) to nodes
 		
 
-  // initialize previous x0/y0
-		nodes.forEach((d: any) => {
-			const prev = this.prevPos.get(d.data.id);
-			if (prev) {
-				d.x0 = prev.x0 ?? prev.x;
-				d.y0 = prev.y0 ?? prev.y;
-			} else {
-				d.x0 = d.parent ? d.parent.x : d.x;
-				d.y0 = d.parent ? d.parent.y : d.y;
-			}
-		});
 
-	// first draw: clear DOM
 	if (!this.firstDrawDone) {
 		console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		this.g.selectAll('*').remove();
@@ -274,24 +248,19 @@ root.each((d: any) => {
 	}
 
 
-  // determine min x for normalized drawing
-  const minX = d3.min(nodes, (d: any) => d.x) ?? 0;
+	// --- LINKS ---
+	const linkSel = this.g.selectAll('path.link').data(links, (d: any) => d.target.data.id);
 
- 
+	const linkEnter = linkSel.enter().insert('path', 'g')
+		.attr('class', 'link')
+		.attr('d', (d: any) => this.makeLinkPath(d.source, d.source));
 
-  // --- LINKS ---
-  const linkSel = this.g.selectAll('path.link').data(links, (d: any) => d.target.data.id);
+	linkEnter.merge(linkSel as any).transition().duration(this.duration)
+		.attr('d', (d: any) => this.makeLinkPath(d.source, d.target));
 
-  const linkEnter = linkSel.enter().insert('path', 'g')
-    .attr('class', 'link')
-    .attr('d', (d: any) => this.makeLinkPath(d.source, d.source));
-
-  linkEnter.merge(linkSel as any).transition().duration(this.duration)
-    .attr('d', (d: any) => this.makeLinkPath(d.source, d.target));
-
-  linkSel.exit().transition().duration(this.duration)
-    .attr('d', (d: any) => this.makeLinkPath(d.source, d.source))
-    .remove();
+	linkSel.exit().transition().duration(this.duration)
+		.attr('d', (d: any) => this.makeLinkPath(d.source, d.source))
+		.remove();
 
   // --- NODES ---
   // remove old nodes
@@ -300,24 +269,19 @@ root.each((d: any) => {
   // draw rectangle-card nodes
   this.drawNodes(
     this.g,
-    nodes,
-    minX,
-    xOffset,
-    nodeWidth,
+    nodes,    
     nodeHeight,
     imageWidth,
     padding
   );
 
   // store positions
-  nodes.forEach((d: any) => { d.x0 = d.x; d.y0 = d.y; });
+  //nodes.forEach((d: any) => { d.x0 = d.x; d.y0 = d.y; });
 
   // center tree after layout
   setTimeout(() => {
     requestAnimationFrame(() => {
-     // this.centerTree({ mode: 'fixed' });
-//	this.centerTree({ mode: 'fit', fitPercent: 10 }, true)
-	  //this.centerTree({ mode: 'fixed', fixedZoom: 0.1 }); // keep zoom = 1
+  
       this.firstRender = false;
     });
   }, this.duration + 5);
@@ -329,12 +293,7 @@ root.each((d: any) => {
 private computeCardSize(d: any, nodeHeight: number, imageWidth: number, padding: number) {
   const fields: CardField[] = d.data.ui?.cardFields || [];
 
-  // estimate height (this part is fine)
-  /*const cardHeight =
-    padding * 3 +
-    Math.max(1, fields.length) * nodeHeight +
-    40; // avatar height
-	*/
+
 const cardHeight = padding * 3 + 16+100;
   // estimate width using canvas (FAST & SAFE)
   const canvas = document.createElement('canvas');
@@ -354,221 +313,94 @@ console.log("cardWidth: ", d);
   d.cardWidth = Math.ceil(cardWidth);
   d.cardHeight = Math.ceil(cardHeight);
  
-	//d.cardWidth  = 240;
-	//d.cardHeight = 100;
-	//d.cardWidth  = imageWidth + padding * 3 + maxTextWidth;
-    //d.cardHeight = padding * 3 + maxTextHeight+100
-	/*
-	 d.cardWidth  = imageWidth + padding * 3 + maxTextWidth;
-    d.cardHeight = padding * 3 + maxTextHeight+100
-	*/
+	
 	 console.log("cardWidth: ",cardWidth ," cardHeight:",cardHeight, " d.cardWidth:",d.cardWidth," d.cardHeight:",d.cardHeight, " nodeHeight:",nodeHeight, " maxTextWidth:" ,maxTextWidth, " padding:",padding );
 }
 
-/*
 
-private measureCards(nodes: any[], imageWidth: number, padding: number, nodeHeight: number) {
-  const temp = this.svg.append('g')
-    .attr('visibility', 'hidden');
-
-  nodes.forEach(d => {
-    const g = temp.append('g');
-
-    const fields: CardField[] = d.data.ui?.cardFields || [];
-    const textX = imageWidth + padding * 2;
-
-    fields.forEach((field, i) => {
-      g.append('text')
-        .attr('x', textX)
-        .attr('y', 20 + i * nodeHeight)
-        .style('font-size', '0.8em')
-        .text(`${field.label}: ${d.data[field.key] ?? ''}`);
-    });
-
-    const texts = g.selectAll('text').nodes() as SVGTextElement[];
-
-    const maxTextWidth = Math.max(...texts.map(t => t.getBBox().width), 0);
-    const maxTextHeight = Math.max(...texts.map(t => t.getBBox().height), 0);
-
-    d.cardWidth  = imageWidth + padding * 3 + maxTextWidth;
-    d.cardHeight = padding * 3 + maxTextHeight+100
-	console.log("measureCards:",d.cardWidth,d.cardHeight);
-
-  
-  
-    g.remove();
-  });
-
-  temp.remove();
-}
-*/
 
   // ------------------ centering / sizing ------------------
   
-  private getRootScreenPosition(transform: any) {
-  /*const root: any = this.root;
-
-  const rootCardWidth  = root.cardWidth  ?? this.cardWidth;
-  const rootCardHeight = root.cardHeight ?? this.cardHeight;
-
-  const nodes = this.root.descendants();
-  const rawMinX = d3.min(nodes, (d: any) => d.x) ?? 0;
-  const normX = (d: any) => d.x - rawMinX;
-  const xOffset = 50;
-
-  const rootVisualX =
-    normX(root) + rootCardWidth / 2;
-
-  const rootVisualY =
-    root.y + xOffset + rootCardHeight / 2;
-console.log("transform:",transform, " rootVisualX:",rootVisualX," rootCardWidth:",rootCardWidth);
-  return {
-    x: rootVisualX * transform.k + transform.x,
-    y: rootVisualY * transform.k + transform.y
-  };
-  */
- /*  const root: any = this.root;
-
-  const rootCardWidth  = root.cardWidth  ?? this.cardWidth;
-  const rootCardHeight = root.cardHeight ?? this.cardHeight;
-
-  const xOffset = 50; // MUST match drawNodes
-
-  // 🚫 DO NOT normalize X for root anchoring
-  const rootVisualCenterX =
-    root.x + rootCardWidth / 2;
-
-  const rootVisualCenterY =
-    root.y + xOffset + rootCardHeight / 2;
-console.log("transform:",transform, " rootVisualX:",rootVisualCenterX," rootCardWidth:",rootCardWidth);
-  return {
-    x: rootVisualCenterX * transform.k + transform.x,
-    y: rootVisualCenterY * transform.k + transform.y
-  };
-  */
-  const root: any = this.root;
-
-  const rootCardWidth  = root.cardWidth  ?? this.cardWidth;
-  const rootCardHeight = root.cardHeight ?? this.cardHeight;
-
-  const nodes = this.root.descendants();
-  const rawMinX = d3.min(nodes, (d: any) => d.x) ?? 0;
-  const xOffset = 50;
-
-  // ✅ MATCH drawNodes COORDINATES
-  const rootVisualCenterX =
-    (root.x) + rootCardWidth / 2;
-console.log("rootVisualCenterX:",rootVisualCenterX);
-  const rootVisualCenterY =
-    root.y + xOffset + rootCardHeight / 2;
- console.log({
-  rawMinX,
-  rootX: root.x,
-  rootVisualCenterX
-});
-  return {
-    x: rootVisualCenterX * transform.k + transform.x,
-    y: rootVisualCenterY * transform.k + transform.y
-  };
-
-}
 
 
-private centerTree(
-  config: { mode?: 'fit' | 'fixed' | 'root'; fitPercent?: number; fixedZoom?: number } = {},
-  animate = true
-) {
-  if (!this.root || !this.svg) return;
 
-  const nodes = this.root.descendants();
-  if (!nodes.length) return;
+	private centerTree(
+	  config: { mode?: 'fit' | 'fixed' | 'root'; fitPercent?: number; fixedZoom?: number } = {},
+	  animate = true
+	) {
+	  if (!this.root || !this.svg) return;
 
-  const xOffset = 50; // match drawNodes
-  const root: any = this.root;
-  const rootCardWidth = root.cardWidth ?? this.cardWidth;
-  const rootCardHeight = root.cardHeight ?? this.cardHeight;
+	  const nodes = this.root.descendants();
+	  if (!nodes.length) return;
 
-  const rawMinX = d3.min(nodes, (d: any) => d.x) ?? 0;
-  const normX = (d: any) => d.x - rawMinX;
+	  const root: any = this.root;
+	  const rootW = root.cardWidth ?? this.cardWidth;
+	  const rootH = root.cardHeight ?? this.cardHeight;
 
-  /* -------------------------------------------------- */
-  /* ROOT MODE — absolute center                        */
-  /* -------------------------------------------------- */
-  if (config.mode === 'root') {
-    const cx = normX(root) + rootCardWidth / 2;
-    const cy = root.y + xOffset + rootCardHeight / 2;
-    const k = config.fixedZoom ?? 1;
+	  const padding = 120;
 
-    const target = d3.zoomIdentity
-      .translate(this.width / 2 - cx * k, this.height / 2 - cy * k)
-      .scale(k);
+	  /* -------------------------------------------------- */
+	  /* SCALE (k)                                          */
+	  /* -------------------------------------------------- */
+	  let k = 1;
 
-    this.applyTransform(target, animate);
-    return;
-  }
+	  if (config.mode === 'fixed') {
+		k = config.fixedZoom ?? 1;
+	  }
 
-  /* -------------------------------------------------- */
-  /* FIXED + FIT MODE                                   */
-  /* -------------------------------------------------- */
+	  if (config.mode === 'fit') {
+		// Tree bounds in **layout space**
+		const minX = d3.min(nodes, (d:any) => d.x) ?? 0;
+		const maxX = d3.max(nodes, (d:any) => d.x + (d.cardWidth ?? this.cardWidth)) ?? 0;
+		const minY = d3.min(nodes, (d:any) => d.y) ?? 0;
+		const maxY = d3.max(nodes, (d:any) => d.y + (d.cardHeight ?? this.cardHeight)) ?? 0;
 
-  let k = 1;
-  const padding = 120;
+		const scaleX = (this.width - 2 * padding) / (maxX - minX || 1);
+		const scaleY = (this.height - 2 * padding) / (maxY - minY || 1);
 
-  // Compute tree bounds (normalized)
-/*  const minX = d3.min(nodes, (d: any) => normX(d)) ?? 0;
-  const maxX = d3.max(nodes, (d: any) => normX(d)) ?? 0;
-  const minY = d3.min(nodes, (d: any) => d.y + xOffset) ?? 0;
-  const maxY = d3.max(nodes, (d: any) => d.y + xOffset) ?? 0;
-*/
-const minX = d3.min(nodes, (d: any) => normX(d)) ?? 0;
-const maxX = d3.max(nodes, (d: any) => normX(d) + (d.cardWidth ?? this.cardWidth)) ?? 0;
-const minY = d3.min(nodes, (d: any) => d.y + xOffset) ?? 0;
-const maxY = d3.max(nodes, (d: any) => d.y + xOffset + (d.cardHeight ?? this.cardHeight)) ?? 0;
-  if (config.mode === 'fit') {
-    const scaleX = (this.width - 2 * padding) / (maxX - minX || 1);
-    const scaleY = (this.height - 2 * padding) / (maxY - minY || 1);
-    k = Math.min(scaleX, scaleY, 1); // ensures full tree fits viewport
-  } else if (config.mode === 'fixed') {
-    k = config.fixedZoom ?? 1;
-  }
+		k = Math.min(scaleX, scaleY, 1);
+	  }
 
-  let dx: number, dy: number;
+	  if (config.mode === 'root') {
+		k = config.fixedZoom ?? 1;
+	  }
 
-  if (nodes.length === 1) {
-    // Single node — center root directly
-    const rootVisualX = normX(root) + rootCardWidth / 2;
-    const rootVisualY = root.y + xOffset + rootCardHeight / 2;
-    dx = this.width / 2 - rootVisualX * k;
-    dy = this.height / 2 - rootVisualY * k;
-  } else {
-    // Multiple nodes — center the tree
-    const centerX = (minX + maxX) / 2;
-    const centerY = (minY + maxY) / 2;
-    dx = this.width / 2 - centerX * k;
-    dy = this.height / 2 - centerY * k;
-  }
+	  /* -------------------------------------------------- */
+	  /* ROOT ANCHOR (layout space)                          */
+	  /* -------------------------------------------------- */
+	  const rootCenterX = root.x + rootW / 2;
+	  const rootCenterY = root.y + rootH / 2;
 
-  const target = d3.zoomIdentity.translate(dx, dy).scale(k);
-  this.applyTransform(target, animate);
-}
+	  /* -------------------------------------------------- */
+	  /* TARGET POSITION (visual space)                     */
+	  /* -------------------------------------------------- */
+	  const targetX = this.width / 2;
+	  const targetY = this.TOP_PADDING;
 
+	  /* -------------------------------------------------- */
+	  /* TRANSLATION                                        */
+	  /* -------------------------------------------------- */
+	  const dx = targetX - rootCenterX * k;
+	  const dy = targetY - rootCenterY * k;
 
-  private applyTransform(
-  //transform: d3.ZoomTransform,
-  transform: any,
-  animate: boolean
-) {
-  if (animate) {
-    this.svg
-      .transition()
-      .duration(this.duration)
-      .call(this.zoom.transform as any, transform);
-  } else {
-    this.svg.call(this.zoom.transform as any, transform);
-  }
+	  const transform = d3.zoomIdentity
+		.translate(dx, dy)
+		.scale(k);
 
-  this.currentTransform = transform;
-}
+	  this.applyTransform(transform, animate);
+	}
+
+	private applyTransform(transform: any,  animate: boolean) {
+		if (animate) {
+			this.svg
+			  .transition()
+			  .duration(this.duration)
+			  .call(this.zoom.transform as any, transform);
+		} else {
+			this.svg.call(this.zoom.transform as any, transform);
+		}
+		this.currentTransform = transform;
+	}
  
   
 
@@ -593,100 +425,82 @@ const maxY = d3.max(nodes, (d: any) => d.y + xOffset + (d.cardHeight ?? this.car
 
 
 
-  private drawNodes(container: any, nodes: any[], minX: number, xOffset: number, nodeWidth: number, nodeHeight: number, imageWidth: number, padding: number) {
+  private drawNodes(container: any, nodes: any[],  nodeHeight: number, imageWidth: number, padding: number) {
     //    const nodeSelection = container.selectAll('g.node').data(nodes, (d: any) => d.data.id);
-  if (!this.firstRender) {
-    this.currentTransform = d3.zoomIdentity;
-  }
-   
-	 const nodeSelection = container.selectAll('g.node').data(nodes, (d: any) => d.data.id);
-
-  // ENTER
-  const nodeEnter = nodeSelection.enter()
-    .append('g')
-    .attr('class', 'node test')
-    //.attr('transform', (d:any) => `translate(${d.x - minX + xOffset},${d.y})`)
-	.attr('transform', (d:any) => `translate(${d.x - minX },${d.y})`)
-    .on('click', (_event: any, d: any) => this.nodeClick.emit(d.data.id));
-console.log("draw_nodes:", " nodeWidth:", nodeWidth);
-
-
-
-  // Append shapes/text only for entering nodes
-  nodeEnter.append('rect')
-	.attr('width', (d:any) => d.cardWidth)
-	.attr('height', (d:any) => d.cardHeight)
-    .attr('rx', 20)
-    .attr('ry', 20)
-    .attr('fill', '#4e79a7')
-    .attr('stroke', '#333');
-
-  nodeEnter.append('image')
-    .attr('x', padding)
-    .attr('y', padding)
-    .attr('width', imageWidth)
-    .attr('height', 40)
-    .attr('preserveAspectRatio', 'xMidYMid slice')
-    .attr('href', (d:any) => d.data.imageUrl || 'assets/avatar-placeholder.png');
-
-  nodeEnter.each(function(this: SVGGElement, d:any) {
-    const g = d3.select(this);
-    const fields: CardField[] = d.data.ui?.cardFields || [];
-    const textX = imageWidth + padding * 2;
-    const textStartY = 20;
-    const getCardHeight = ((fields.length || 1) + 1) * nodeHeight + 10;
-	console.log("getCardHeight:",getCardHeight);
-   // g.select('rect').attr('height', getCardHeight); // adjust rect height
-   //g.select('rect').attr('height', d.cardHeight).attr('width', d.cardWidth)
-	//console.log("field_label_d:",d, "fields:",fields);
-    fields.forEach((field, i) => {
-//		console.log("field_label:",field,d);
-      g.append('text')
-        .attr('x', textX)
-        .attr('y', textStartY + i * 15)
-	    //.attr('y', 400)
-        .attr('text-anchor', 'start')
-        .attr('fill', '#fff')
-        .style('font-size', '0.8em')
-        .text(field.label+' : '+d.data[field.key] ?? '')
-		//.text(field.label ?? '');
-    });
-  });
-
-const isMatch = (d: any) => {
-console.log("this.rawData._lastSearch_is_match:",this.rawData._lastSearch);
-return  !!this.rawData?._lastSearch &&
-d.data.teudatZehut?.toLowerCase().includes(this.rawData._lastSearch);
-//return true;
-};
-
-  // UPDATE + ENTER
-  const nodeMerge = nodeEnter.merge(nodeSelection)
-    .transition() // optional smooth transition
-    .duration(200)
-	// .classed('highlight', (d: any) => isMatch(d));
+		if (!this.firstRender) {
+			this.currentTransform = d3.zoomIdentity;
+		}
+	   
+		const nodeSelection = container.selectAll('g.node').data(nodes, (d: any) => d.data.id);
 	
-const nodeMerge2 = nodeEnter.merge(nodeSelection as any);
+		// ENTER
+		const nodeEnter = nodeSelection.enter()
+			.append('g')
+			.attr('class', 'node test')		
+			//.attr('transform', (d:any) => {console.log("draw_nodes:",d.x,minX,d.y, "ROOT_X:",ROOT_X); return `translate(${d.x - minX },${d.y})`})
+			.attr('transform', (d:any) => {console.log("draw_nodes:",d.x,d.y); return `translate(${d.x},${d.y})`})
+			.on('click', (_event: any, d: any) => this.nodeClick.emit(d.data.id));
+			
+		// Append shapes/text only for entering nodes
+		nodeEnter.append('rect')
+			.attr('width', (d:any) => d.cardWidth)
+			.attr('height', (d:any) => d.cardHeight)
+			.attr('rx', 20)
+			.attr('ry', 20)
+			.attr('fill', '#4e79a7')
+			.attr('stroke', '#333');
 
-nodeMerge2
-  .classed('highlight', (d: any) => isMatch(d));	
+		nodeEnter.append('image')
+			.attr('x', padding)
+			.attr('y', padding)
+			.attr('width', imageWidth)
+			.attr('height', 40)
+			.attr('preserveAspectRatio', 'xMidYMid slice')
+			.attr('href', (d:any) => d.data.imageUrl || 'assets/avatar-placeholder.png');
+
+		nodeEnter.each(function(this: SVGGElement, d:any) {
+			const g = d3.select(this);
+			const fields: CardField[] = d.data.ui?.cardFields || [];
+			const textX = imageWidth + padding * 2;
+			const textStartY = 20;
+			const getCardHeight = ((fields.length || 1) + 1) * nodeHeight + 10;
+			console.log("getCardHeight:",getCardHeight);
+			// g.select('rect').attr('height', getCardHeight); // adjust rect height
+			//g.select('rect').attr('height', d.cardHeight).attr('width', d.cardWidth)
+			//console.log("field_label_d:",d, "fields:",fields);
+			fields.forEach((field, i) => {
+	//		console.log("field_label:",field,d);
+				g.append('text')
+				.attr('x', textX)
+				.attr('y', textStartY + i * 15)
+				//.attr('y', 400)
+				.attr('text-anchor', 'start')
+				.attr('fill', '#fff')
+				.style('font-size', '0.8em')
+				.text(field.label+' : '+d.data[field.key] ?? '')
+				//.text(field.label ?? '');
+			});
+		});
+
+		const isMatch = (d: any) => {
+		console.log("this.rawData._lastSearch_is_match:",this.rawData._lastSearch);
+		return  !!this.rawData?._lastSearch &&
+		d.data.teudatZehut?.toLowerCase().includes(this.rawData._lastSearch);
+		//return true;
+		};
+
+		// UPDATE + ENTER
+		const nodeMerge = nodeEnter.merge(nodeSelection).transition().duration(200)
+		const nodeMerge2 = nodeEnter.merge(nodeSelection as any);
+		nodeMerge2.classed('highlight', (d: any) => isMatch(d));	
+		
+		// EXIT
+		nodeSelection.exit().remove();
+		//end_of_draw_nodes
+	}
 
 
-  
-	// nodeMerge.select('text')
-    //.attr('class', (d: any) => (this.rawData?._lastSearch && d.data.address.toLowerCase().includes(this.rawData._lastSearch)) ? 'node-text highlight' : 'node-text');
-  /*nodeUpdate.select('circle')
-    .attr('class', (d: any) => (this.rawData?._lastSearch && d.data.address.toLowerCase().includes(this.rawData._lastSearch)) ? 'node-circle highlight' : 'node-circle');
-*/
-	//  .attr('transform', (d:any) => `translate(${d.x - minX },${d.y})`);
-  //.attr('transform', (d:any) => `translate(${d.x - minX + xOffset},${d.y})`);
-
-  // EXIT
-  nodeSelection.exit().remove();
-  }
-
-
-
+/*
 
   private diagonal(s: any, d: any) {
     return `M ${s.x},${s.y}
@@ -695,7 +509,7 @@ nodeMerge2
               ${d.x},${d.y}`;
   }
 
-
+*/
 
  
 
@@ -703,12 +517,12 @@ nodeMerge2
 		const rect = this.svgContainer.nativeElement.getBoundingClientRect();
 		this.width = rect.width;
 		this.height = rect.height;
-console.log("updateViewSize:","this.width: ",this.width, " this.height:",this.height);
+		console.log("updateViewSize:","this.width: ",this.width, " this.height:",this.height);
 		if (this.svg) {
 			this.svg
 			//.attr('width', '100%')
 			//.attr('height', '100%')
-			//.attr('viewBox', `0 0 ${this.width} ${this.height}`);
+			.attr('viewBox', `0 0 ${this.width} ${this.height}`);
 		}
 	}
 	
@@ -907,7 +721,7 @@ private curvedLink(s: any, d: any): string {
 }
 
 private rectLink(source: any, target: any) {
-
+/*
   const nodes = this.root.descendants();
   const minX = d3.min(nodes, (d: any) => d.x) ?? 0;
 
@@ -942,40 +756,30 @@ private rectLink(source: any, target: any) {
     L ${endX},${midY}
     L ${endX},${endY}
   `;
-}
-/*
-private rectLink(source: any, target: any) {
-
-  const minX = d3.min(this.root.descendants(), (d: any) => d.x) ?? 0;
- 
-  const nodeWidth = 180; // same as drawNodes
-
-  // --- Compute normalized X positions ---
-  const sx = source.x - minX ;//+ xOffset;
+  */
+    // --- Layout positions (PURE) ---
+  const sx = source.x;
   const sy = source.y;
 
-  const tx = target.x - minX ;//+ xOffset;
+  const tx = target.x;
   const ty = target.y;
 
-  // --- Read actual rendered node height from DOM ---
-  const parentNode = this.g.select(`g.node[id="${source.data.id}"]`).node() as SVGGElement;
-  const childNode  = this.g.select(`g.node[id="${target.data.id}"]`).node() as SVGGElement;
+  // --- Card sizes ---
+  const parentWidth  = source.cardWidth  ?? this.cardWidth;
+  const parentHeight = source.cardHeight ?? this.cardHeight;
 
-  const parentRect = parentNode?.getBBox();
-  const childRect  = childNode?.getBBox();
+  const childWidth  = target.cardWidth  ?? this.cardWidth;
+  const childHeight = target.cardHeight ?? this.cardHeight;
 
-  const parentHeight = parentRect?.height ?? 60; // fallback
-  const childHeight  = childRect?.height ?? 60;
-
-  // --- Bottom middle of parent ---
-  const startX = sx + nodeWidth / 2;
+  // --- Bottom-center of parent ---
+  const startX = sx + parentWidth / 2;
   const startY = sy + parentHeight;
 
-  // --- Top middle of child ---
-  const endX = tx + nodeWidth / 2;
+  // --- Top-center of child ---
+  const endX = tx + childWidth / 2;
   const endY = ty;
 
-  // --- Midpoint for rectangular elbow ---
+  // --- Elbow ---
   const midY = startY + (endY - startY) / 2;
 
   return `
@@ -985,28 +789,7 @@ private rectLink(source: any, target: any) {
     L ${endX},${endY}
   `;
 }
-*/
-/*private rectLink(s: any, d: any): string {
-  const w = 180; // node width
-  const h = d.data.ui?.cardHeight ?? 60; // dynamic height
 
-  // parent bottom-middle
-  const startX = s.x + w / 2;
-  const startY = s.y + h;
-
-  // child top-middle
-  const endX = d.x + w / 2;
-  const endY = d.y;
-
-  const midY = (startY + endY) / 2;
-
-  return `
-    M ${startX} ${startY}
-    L ${startX} ${midY}
-    L ${endX} ${midY}
-    L ${endX} ${endY}
-  `;
-}*/
 
 }
 
