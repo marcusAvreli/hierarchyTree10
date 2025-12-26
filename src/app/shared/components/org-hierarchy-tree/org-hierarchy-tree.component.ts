@@ -312,8 +312,11 @@ const cardHeight = padding * 3 + 16+100;
 d._maxTextWidth = Math.ceil(maxTextWidth);
   const cardWidth = imageWidth + padding * 3 + maxTextWidth+50;
 
-  d.cardWidth = Math.ceil(cardWidth);
-  d.cardHeight = Math.ceil(cardHeight);
+ // d.cardWidth = Math.ceil(cardWidth);
+ // d.cardHeight = Math.ceil(cardHeight);
+ d.cardWidth = 220;
+  d.cardHeight = 100;
+  
  
 	
 	 console.log("cardWidth: ",cardWidth ," cardHeight:",cardHeight, " d.cardWidth:",d.cardWidth," d.cardHeight:",d.cardHeight, " nodeHeight:",nodeHeight, " maxTextWidth:" ,maxTextWidth, " padding:",padding );
@@ -460,71 +463,72 @@ d._maxTextWidth = Math.ceil(maxTextWidth);
 			.attr('preserveAspectRatio', 'xMidYMid slice')
 			.attr('href', (d:any) => d.data.imageUrl || 'assets/avatar-placeholder.png');
 			const rtl = this.rtl; // 👈 capture component input
-nodeEnter.append('clipPath')
-  .attr('id', (d: any) => `clip-text-${d.data.id}`)
-  .attr('clipPathUnits', 'userSpaceOnUse') // 🔑 REQUIRED
-  .append('rect')
-  .attr('x', imageWidth + padding * 2)
-  .attr('y', padding)
-  .attr('width', (d:any) => d.cardWidth - imageWidth - padding * 3)
-  .attr('height', (d:any) => d.cardHeight - padding * 2);
-	const bidiSafe = (text: string) => this.bidiSafe(text);
-nodeEnter.each(function (this: SVGGElement, d: any) {
-  const g = d3.select(this);
-  const fields: CardField[] = d.data.ui?.cardFields || [];
-  //const rtl = !!d.data.ui?.rtl; // or this.rtl
-  const rtl = true
+			
+		nodeEnter.append('clipPath')
+		  .attr('id', (d: any) => `clip-text-${d.data.id}`)
+		  .attr('clipPathUnits', 'userSpaceOnUse') // 🔑 REQUIRED
+		  .append('rect')
+		  .attr('x', imageWidth + padding * 2)
+		  .attr('y', padding)
+		  .attr('width', (d:any) => d.cardWidth - imageWidth - padding * 3)
+		  .attr('height', (d:any) => d.cardHeight - padding * 2);
+		  
+		const bidiSafe = (text: string) => this.bidiSafe(text);
+		nodeEnter.each(function (this: SVGGElement, d: any) {
+			const g = d3.select(this);
+			const fields: CardField[] = d.data.ui?.cardFields || [];
+			//const rtl = !!d.data.ui?.rtl; // or this.rtl
+			const rtl = true
 
-  const imageWidth = 40;
-  const padding = 8;
+			const imageWidth = 40;
+			const padding = 8;
 
-  const textX = imageWidth + padding * 2;
-  const textY = padding;
-  const textWidth = d.cardWidth - textX - padding;
-  const textHeight = d.cardHeight - padding * 2;
+			const textX = imageWidth + padding * 2;
+			const textY = padding;
+			const textWidth = d.cardWidth - textX - padding;
+			const textHeight = d.cardHeight - padding * 2;
 
-  // ---- foreignObject ----
-  const fo = g.append('foreignObject')
-    .attr('x', textX)
-    .attr('y', textY)
-    .attr('width', textWidth)
-    .attr('height', textHeight);
+			// ---- foreignObject ----
+			const fo = g.append('foreignObject')
+				.attr('x', textX)
+				.attr('y', textY)
+				.attr('width', textWidth)
+				.attr('height', textHeight);
 
-  // ---- HTML container ----
-  const div = fo.append('xhtml:div')
-    .style('width', '100%')
-    .style('height', '100%')
-    .style('display', 'flex')
-    .style('flex-direction', 'column')
-	// .style('align-items', rtl ? 'flex-end' : 'flex-start') // ⭐ IMPORTANT
-	 .style('align-items', 'stretch') // ⭐ IMPORTANT
-    .style('gap', '4px')
-    .style('font-size', '0.8em')
-    .style('color', '#fff')
-    .style('overflow', 'hidden')
-    .style('direction', rtl ? 'rtl' : 'ltr')
-   // .style('text-align', rtl ? 'right' : 'left');
+			// ---- HTML container ----
+			const div = fo.append('xhtml:div')
+				.style('width', '100%')
+				.style('height', '100%')
+				.style('display', 'flex')
+				.style('flex-direction', 'column')
 
-  // ---- fields ----
-  fields.forEach(field => {
-	  const value = d.data[field.key] ?? '';
-const safeValue = bidiSafe(value);
-    div.append('xhtml:div')
-      .style('white-space', 'nowrap')
-      .style('overflow', 'hidden')
-      .style('text-overflow', 'ellipsis')
-	  // .style('dir', 'rtl')
-	    .style('unicode-bidi', 'plaintext') // 🔑 THIS FIXES MIXED RTL/LTR
-	//	 .style('text-align', rtl ? 'right' : 'left') // ✅ ALIGNMENT FIX
-     // .text(`${field.label} : ${d.data[field.key] ?? ''}`);
-	 .text(`${field.label} : ${safeValue}`);
-  });
-});
+				.style('align-items', 'stretch') // ⭐ IMPORTANT
+				.style('gap', '4px')
+				.style('font-size', '0.8em')
+				.style('color', '#fff')
+				.style('overflow', 'hidden')
+				.style('direction', rtl ? 'rtl' : 'ltr')
+
+
+			// ---- fields ----
+			fields.forEach(field => {
+			const value = d.data[field.key] ?? '';
+			const safeValue = bidiSafe(value);
+			div.append('xhtml:div')
+				.style('white-space', 'nowrap')
+				.style('overflow', 'hidden')
+				.style('text-overflow', 'ellipsis')
+
+				.style('unicode-bidi', 'plaintext') // 🔑 THIS FIXES MIXED RTL/LTR
+
+				.text(`${field.label} : ${safeValue}`);
+			});
+		});
 		const isMatch = (d: any) => {
-		console.log("this.rawData._lastSearch_is_match:",this.rawData._lastSearch);
-		return  !!this.rawData?._lastSearch &&
-		d.data.teudatZehut?.toLowerCase().includes(this.rawData._lastSearch);
-		//return true;
+			console.log("this.rawData._lastSearch_is_match:",this.rawData._lastSearch);
+			return  !!this.rawData?._lastSearch &&
+			d.data.teudatZehut?.toLowerCase().includes(this.rawData._lastSearch);
+			
 		};
 
 		// UPDATE + ENTER
