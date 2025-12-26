@@ -7,7 +7,9 @@ import {TreeUtilsService} from '../../../tree-utils.service';
 import { CardField } from '../../../core/models/ui/card-field.model';
 import { NODE_CARD_CONFIG } from '../../../core/models/ui/node-config.model';
 const flextree = (d3flextree as any).flextree;
-
+///https://github.com/bsv-blockchain/teranode/blob/d73b9ff2e4459e5d55b70396ab1065cee86bc230/ui/dashboard/src/routes/forks/helpers.ts#L102
+//https://github.com/teamapps-org/teamapps/blob/e2f7991872285cb1723aa305a889c179dc8af5e3/teamapps-client/ts/modules/UiTreeGraph.ts#L779
+//https://github.com/bsv-blockchain/teranode/blob/d73b9ff2e4459e5d55b70396ab1065cee86bc230/ui/dashboard/src/routes/forks/helpers.ts#L344
 @Component({
   selector: 'app-org-hierarchy-tree',
  // template: `<div #svgContainer class="svg-container" style="width:100%; height:100%;"></div>`,
@@ -194,22 +196,22 @@ console.log("centerOnAddress","3");
 		}
 
 		if (!this.rawData) return;
-			// node/card configuration
-			const nodeWidth = 180;
-			const nodeHeight = 180;
-			const imageWidth = 40;
-			const padding = 8;
-			const xOffset = 50;
-			// rebuild hierarchy
-			const root = d3.hierarchy(this.rawData, (d: any) => d.children || null);		
-			this.root = root;
-			
-			
-			
-			this.applyNodeCardConfig(this.rawData);
-			root.each((d: any) => {
-			  this.computeCardSize(d, nodeHeight, imageWidth, padding);
-			});
+		// node/card configuration
+		const nodeWidth = 180;
+		const nodeHeight = 180;
+		const imageWidth = 40;
+		const padding = 8;
+		const xOffset = 50;
+		// rebuild hierarchy
+		const root = d3.hierarchy(this.rawData, (d: any) => d.children || null);		
+		this.root = root;
+		
+		
+		
+		this.applyNodeCardConfig(this.rawData);
+		root.each((d: any) => {
+		  this.computeCardSize(d, nodeHeight, imageWidth, padding);
+		});
 			
 		const nodes = this.root.descendants();
 
@@ -228,66 +230,66 @@ console.log("centerOnAddress","3");
 		
 
 
-	if (!this.firstDrawDone) {
-		console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-		this.g.selectAll('*').remove();
+		if (!this.firstDrawDone) {
+			console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+			this.g.selectAll('*').remove();
 
-		requestAnimationFrame(() => {
-			
 			requestAnimationFrame(() => {
-						this.centerTree({ mode: 'root', fitPercent: 30 }, false);
-				this.firstDrawDone = true;
-			});
-		});	
-	} else {
-	  // later updates can animate
-	  
-	
-	  this.centerTree({ mode: 'fit', fitPercent: 30 }, true);
-	  	
+				
+				requestAnimationFrame(() => {
+							this.centerTree({ mode: 'root', fitPercent: 30 }, false);
+					this.firstDrawDone = true;
+				});
+			});	
+		} else {
+		  // later updates can animate
+		  
+		
+		  this.centerTree({ mode: 'fit', fitPercent: 30 }, true);
+			
+		}
+
+
+		// --- LINKS ---
+		const linkSel = this.g.selectAll('path.link').data(links, (d: any) => d.target.data.id);
+
+		const linkEnter = linkSel.enter().insert('path', 'g')
+			.attr('class', 'link')
+			.attr('d', (d: any) => this.makeLinkPath(d.source, d.source));
+
+		linkEnter.merge(linkSel as any).transition().duration(this.duration)
+			.attr('d', (d: any) => this.makeLinkPath(d.source, d.target));
+
+		linkSel.exit().transition().duration(this.duration)
+			.attr('d', (d: any) => this.makeLinkPath(d.source, d.source))
+			.remove();
+
+		// --- NODES ---
+		// remove old nodes
+		this.g.selectAll('g.node').remove();
+
+		// draw rectangle-card nodes
+		this.drawNodes(
+			this.g,
+			nodes,    
+			nodeHeight,
+			imageWidth,
+			padding
+		);
+
+		// store positions
+		//nodes.forEach((d: any) => { d.x0 = d.x; d.y0 = d.y; });
+
+		// center tree after layout
+		setTimeout(() => {
+		requestAnimationFrame(() => {
+
+		this.firstRender = false;
+		});
+		}, this.duration + 5);
+
+
 	}
-
-
-	// --- LINKS ---
-	const linkSel = this.g.selectAll('path.link').data(links, (d: any) => d.target.data.id);
-
-	const linkEnter = linkSel.enter().insert('path', 'g')
-		.attr('class', 'link')
-		.attr('d', (d: any) => this.makeLinkPath(d.source, d.source));
-
-	linkEnter.merge(linkSel as any).transition().duration(this.duration)
-		.attr('d', (d: any) => this.makeLinkPath(d.source, d.target));
-
-	linkSel.exit().transition().duration(this.duration)
-		.attr('d', (d: any) => this.makeLinkPath(d.source, d.source))
-		.remove();
-
-  // --- NODES ---
-  // remove old nodes
-  this.g.selectAll('g.node').remove();
-
-  // draw rectangle-card nodes
-  this.drawNodes(
-    this.g,
-    nodes,    
-    nodeHeight,
-    imageWidth,
-    padding
-  );
-
-  // store positions
-  //nodes.forEach((d: any) => { d.x0 = d.x; d.y0 = d.y; });
-
-  // center tree after layout
-  setTimeout(() => {
-    requestAnimationFrame(() => {
-  
-      this.firstRender = false;
-    });
-  }, this.duration + 5);
-
-
-}
 
 
 private computeCardSize(d: any, nodeHeight: number, imageWidth: number, padding: number) {
@@ -307,7 +309,7 @@ const cardHeight = padding * 3 + 16+100;
     ),
     0
   );
-
+d._maxTextWidth = Math.ceil(maxTextWidth);
   const cardWidth = imageWidth + padding * 3 + maxTextWidth+50;
 
   d.cardWidth = Math.ceil(cardWidth);
@@ -458,35 +460,66 @@ const cardHeight = padding * 3 + 16+100;
 			.attr('preserveAspectRatio', 'xMidYMid slice')
 			.attr('href', (d:any) => d.data.imageUrl || 'assets/avatar-placeholder.png');
 			const rtl = this.rtl; // 👈 capture component input
+nodeEnter.append('clipPath')
+  .attr('id', (d: any) => `clip-text-${d.data.id}`)
+  .attr('clipPathUnits', 'userSpaceOnUse') // 🔑 REQUIRED
+  .append('rect')
+  .attr('x', imageWidth + padding * 2)
+  .attr('y', padding)
+  .attr('width', (d:any) => d.cardWidth - imageWidth - padding * 3)
+  .attr('height', (d:any) => d.cardHeight - padding * 2);
+	const bidiSafe = (text: string) => this.bidiSafe(text);
+nodeEnter.each(function (this: SVGGElement, d: any) {
+  const g = d3.select(this);
+  const fields: CardField[] = d.data.ui?.cardFields || [];
+  //const rtl = !!d.data.ui?.rtl; // or this.rtl
+  const rtl = true
 
-		nodeEnter.each(function(this: SVGGElement, d:any) {
-			const g = d3.select(this);
-			const fields: CardField[] = d.data.ui?.cardFields || [];
-		//	const textX = imageWidth + padding * 2;
-		const textX = rtl
-		   ? d.cardWidth - imageWidth - padding * 2
-		   : imageWidth + padding * 2;
-			const textStartY = 20;
-			const getCardHeight = ((fields.length || 1) + 1) * nodeHeight + 10;
-			console.log("getCardHeight:",getCardHeight);
-			// g.select('rect').attr('height', getCardHeight); // adjust rect height
-			//g.select('rect').attr('height', d.cardHeight).attr('width', d.cardWidth)
-			//console.log("field_label_d:",d, "fields:",fields);
-			fields.forEach((field, i) => {
-	//		console.log("field_label:",field,d);
-				g.append('text')
-				.attr('x', textX)
-				.attr('y', textStartY + i * 15)
-				//.attr('y', 400)
-				.attr('text-anchor', rtl ? 'end' : 'start')
-				     .attr('direction', rtl ? 'rtl' : 'ltr')
-				.attr('fill', '#fff')
-				.style('font-size', '0.8em')
-				.text(field.label+' : '+d.data[field.key] ?? '')
-				//.text(field.label ?? '');
-			});
-		});
+  const imageWidth = 40;
+  const padding = 8;
 
+  const textX = imageWidth + padding * 2;
+  const textY = padding;
+  const textWidth = d.cardWidth - textX - padding;
+  const textHeight = d.cardHeight - padding * 2;
+
+  // ---- foreignObject ----
+  const fo = g.append('foreignObject')
+    .attr('x', textX)
+    .attr('y', textY)
+    .attr('width', textWidth)
+    .attr('height', textHeight);
+
+  // ---- HTML container ----
+  const div = fo.append('xhtml:div')
+    .style('width', '100%')
+    .style('height', '100%')
+    .style('display', 'flex')
+    .style('flex-direction', 'column')
+	// .style('align-items', rtl ? 'flex-end' : 'flex-start') // ⭐ IMPORTANT
+	 .style('align-items', 'stretch') // ⭐ IMPORTANT
+    .style('gap', '4px')
+    .style('font-size', '0.8em')
+    .style('color', '#fff')
+    .style('overflow', 'hidden')
+    .style('direction', rtl ? 'rtl' : 'ltr')
+   // .style('text-align', rtl ? 'right' : 'left');
+
+  // ---- fields ----
+  fields.forEach(field => {
+	  const value = d.data[field.key] ?? '';
+const safeValue = bidiSafe(value);
+    div.append('xhtml:div')
+      .style('white-space', 'nowrap')
+      .style('overflow', 'hidden')
+      .style('text-overflow', 'ellipsis')
+	  // .style('dir', 'rtl')
+	    .style('unicode-bidi', 'plaintext') // 🔑 THIS FIXES MIXED RTL/LTR
+	//	 .style('text-align', rtl ? 'right' : 'left') // ✅ ALIGNMENT FIX
+     // .text(`${field.label} : ${d.data[field.key] ?? ''}`);
+	 .text(`${field.label} : ${safeValue}`);
+  });
+});
 		const isMatch = (d: any) => {
 		console.log("this.rawData._lastSearch_is_match:",this.rawData._lastSearch);
 		return  !!this.rawData?._lastSearch &&
@@ -504,7 +537,9 @@ const cardHeight = padding * 3 + 16+100;
 		//end_of_draw_nodes
 	}
 
-
+ bidiSafe(text: string) {
+  return /[@.:\/]/.test(text) ? `\u200E${text}\u200E` : text;
+}
 
  
 

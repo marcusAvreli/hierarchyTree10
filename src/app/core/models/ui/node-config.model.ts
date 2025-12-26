@@ -2,14 +2,19 @@ import {CardField} from './card-field.model';
 export const NODE_CARD_CONFIG: Record<string, CardField[]> = {
   managerial: [
   
-    { key: 'type', label: 'Type' },
-    { key: 'companyName', label: 'Company' },
-    { key: 'email' },
-    { key: 'phoneNumber' },
-	{ key: 'firstName' ,label:"First Name"},
-	{ key: 'lastName' ,label:"Last Name"},
-	{ key: 'teudatZehut' ,label:"teudatZehut"},
-	{ key: 'gender' ,label:"Gender"},
+  
+    { key: 'email', label: "כתובת מייל" },
+    { key: 'phoneNumber',label:"מספר טלפון" },
+	{ key: 'firstName' ,label:"שם פרטי"},
+	{ key: 'lastName' ,label:"שם משפחה"},
+	{ key: 'teudatZehut' ,label:"תעודת זהות:"}
+	
+	/*{ key: 'email', label: "dsdds" },
+    { key: 'phoneNumber',label:"sdfdsfsd" },
+	{ key: 'firstName' ,label:"sdfdsf"},
+	{ key: 'lastName' ,label:"sdfsdfs"},
+	{ key: 'teudatZehut' ,label:"sdfds"}
+	*/
   ],
   branch: [
     { key: 'name', label: 'Branch Name' },
