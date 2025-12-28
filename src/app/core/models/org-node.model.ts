@@ -27,6 +27,8 @@ export class OrgNode {
    parentPath?: string[] = []; // <-- add this
    childrenIds?:string[] =[];
    hasChildren: boolean = false;
+   numberOfChildren?:number;
+     numberOfParents?:number;
   [key: string]: unknown;
   constructor(
     id?: string,
@@ -54,7 +56,8 @@ export class OrgNode {
 	//children: OrgNode[]; 
    parentPath?: string[], // <-- add this
    childrenIds?:string[],
-	hasChildren:boolean=false
+	hasChildren:boolean=false,
+	numberOfChildren?:number
   ) {
     this.id = id;
     this.name = name;
@@ -81,6 +84,7 @@ export class OrgNode {
 	this.parentPath = parentPath;
 	this.childrenIds = childrenIds;
 	this.hasChildren = hasChildren;
+	this.numberOfChildren= numberOfChildren;
   }
 }
 

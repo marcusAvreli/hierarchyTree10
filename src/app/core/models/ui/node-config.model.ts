@@ -6,7 +6,8 @@ export const NODE_CARD_CONFIG: Record<string, CardField[]> = {
     { key: 'email', label: "כתובת מייל" },
     { key: 'phoneNumber',label:"מספר טלפון" },
 	{ key: 'firstName' ,label:"שם פרטי"},
-	{ key: 'lastName' ,label:"שם משפחה"}
+	{ key: 'lastName' ,label:"שם משפחה"},
+	{ key: 'numberOfChildren',label:"מספר כפיפים ישירים"}
 //	,
 //	{ key: 'teudatZehut' ,label:"תעודת זהות:"}
 	

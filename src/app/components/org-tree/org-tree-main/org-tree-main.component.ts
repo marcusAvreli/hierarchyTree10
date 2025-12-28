@@ -1,4 +1,8 @@
-import { Component, OnInit, OnDestroy, AfterViewInit,EventEmitter } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit,EventEmitter,Input ,
+ OnChanges,
+  SimpleChanges
+
+} from '@angular/core';
 import { takeUntil, tap,map,firstValueFrom  } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import * as d3 from 'd3';
@@ -24,92 +28,116 @@ export interface MemoryIndexItem {
   templateUrl: './org-tree-main.component.html',
   styleUrls: ['./org-tree-main.component.scss']
 })
-export class OrgTreeMainComponent extends BaseComponent implements OnInit,AfterViewInit {
+export class OrgTreeMainComponent extends BaseComponent implements OnInit,AfterViewInit,OnChanges  {
 	objectCache = new Map<string, OrgNode>();
 	tzIndex = new Map<string, string>();         // TZ  address
 	emailIndex = new Map<string, string>();      // email  address
 	phoneIndex = new Map<string, string>();      // phone  address
-	
+	@Input() selectedNodeId!: string | number;
 	rootNode!: MaskedItem<OrgNode>;
 	rootAddress = "root";  
 	rootData: any;
 	rawData : any;
 	updateTreeTrigger = new EventEmitter<void>();
-	  private allLoaded = false;
-private currentSearchTerm :string="";
-  memoryIndex: { address: string; path: string[] }[] = [];
-	//items = (dataFile as any).data;
-	// constructor(private dataService: MeshDataService) {}
+	showLoadErrorMessage  :boolean = false;
+	private allLoaded = false;
+	private currentSearchTerm :string="";
+	memoryIndex: { address: string; path: string[] }[] = [];
+
 	constructor(private readonly orgNodeService: OrgNodeService
-	,private loggerService: LoggerService
-	, private treeUtils: TreeUtilsService
+				,private loggerService: LoggerService
+				,private treeUtils: TreeUtilsService
 	) {
 	  
 	  super();
 	 // console.log("items:",this.items);
   }
-  ngOnInit() {
-   
-	this.orgNodeService.findAll().pipe(tap((rawRes: any) => {
-		//this.loggerService.info('raw_object','rest_api','cold_start', rawRes);
-	})).subscribe({
-		next: (nodes: OrgNode[]) => {
-		  this.rawData = nodes[0];
-		//  console.log("loaded_rawData:",this.rawData);
-		  this.treeUtils.normalizeNode(this.rawData);
-		}
-		,error:err => {}
-		});
+	ngOnInit() {
+  console.log("ng_on_init_called");
+		this.orgNodeService.findAll().pipe(tap((rawRes: any) => {
 		
-	//this.rawData = await this.dataService.loadRoot(this.rootAddress);
-	
-  }
-  
-  ngAfterViewInit() {
-	  	/*
-		this.rawData  = this.orgNodeService.findAll().pipe(tap((rawRes: any) => {
-		this.loggerService.info('raw_object','rest_api','cold_start', rawRes);
-	})).subscribe({
-		next: (nodes: OrgNode[]) => {
-		  this.rawData = nodes[0];
-		  console.log("loaded_rawData:",this.rawData);
-		  this.treeUtils.normalizeNode(this.rawData);
-		}
-		,error:err => {}
+		})).subscribe({
+			next: (nodes: OrgNode[]) => {
+				this.rawData = nodes[0];
+				  ///console.log("loaded_rawData:",this.rawData);
+				this.treeUtils.normalizeNode(this.rawData);
+				}
+			,error:err => {}
 		});
+
+		//this.rawData = await this.dataService.loadRoot(this.rootAddress);
+	
+	}
+	ngOnChanges(changes: SimpleChanges): void {
+		if (!changes['selectedNodeId']) return;
+
+		const current = changes['selectedNodeId'].currentValue;
+		const previous = changes['selectedNodeId'].previousValue;
+		console.log("ng_on_changes:" ,"before_return:",current,previous);
+		if (current == null || current === previous) return;
+		console.log("ng_on_changes:",current);
+		console.log("ng_on_changes:",current);
+		this.onSelectedNodeChanged(current);
+	}
+	ngAfterViewInit() {}
+  
+	private async onSelectedNodeChanged(id: string | number): Promise<void> {	
+		/*this.rawData = await this.loadEmployeesDown(String(id));
+		console.log("rawData_on_Component:",this.rawData);
+		this.treeUtils.normalizeNode(this.rawData);
+		this.updateTreeTrigger.emit();
 		*/
+	 
+	    let nodes: OrgNode[];
+	  
+   try {
+    nodes = await firstValueFrom(
+      this.orgNodeService.loadEmployeesDown(String(id))
+    );
+  } catch (err) {
+	  console.log("update_trigger","on_error","before_update:",this.rawData);
+	   this.rawData = undefined;        // remove old tree
+	    console.log("update_trigger","on_error","after_update:",this.rawData);
+    this.memoryIndex = [];           // clear memory index
+    this.updateTreeTrigger.emit();   // notify tree component
+
+    // --- SHOW ERROR MESSAGE ---
+    this.showLoadErrorMessage = true; // bind this flag in template
+		/*console.error('loadEmployeesDown failed', err);
+		this.loggerService.error(
+		  'onSelectedNodeChanged',
+		  'loadEmployeesDown',
+		  'rest_api',
+		  'error',
+		  err
+		);*/
+    return; // stop processing on failure
   }
-  /*ngOnInit(): void {
-    
-	this.orgNodeService.findAll().pipe(tap((rawRes: any) => {
-        this.loggerService.info('raw_object','rest_api','cold_start', rawRes);
-      })).subscribe({
-      next: (nodes: OrgNode[]) => {
-        const root = nodes.find(n => n.parentCompanyCode === '' && n.title === 'President');
-        if (!root) return console.error('No root node found');
 
-        // Masking is done here
-        this.rootNode = {
-          ...root,
-          childrenLoaded: false,
-          ui: { cardFields: NODE_CARD_CONFIG['managerial'] || [] }
-        };
-      },
-      error: err => console.error('Failed to load root nodes:', err)
-    });
+  if (!nodes?.length) {
+    return;
+  }
 
-
-  }*/
+  if (!nodes?.length) return;
+   this.showLoadErrorMessage = false; // hide error
+console.log("update_trigger","onSelectedNodeChanged:","nodes:",nodes, " id:",id);
+ this.rawData = this.buildTreeFromParentPath(nodes);
+		//onSelectedNodeChanged
+		console.log("update_trigger","onSelectedNodeChanged_root:"," Raw_Data:",this.rawData," memoryIndex:", this.memoryIndex);
+		this.treeUtils.normalizeNode(this.rawData);
+		this.indexRawSubtree(this.rawData);
+		console.log("update_trigger","onSelectedNodeChanged_root:"," Raw_data:",this.rawData," memoryIndex:",this.memoryIndex);
+		this.updateTreeTrigger.emit();
+	}
   
   
   
   
-	async handleNodeClick2(addr: string) {
-		//console.log("handle_Node_Click","2",addr);
-		//const raw = this.findRawNode(addr);
+  
+	async handleNodeClick2(addr: string) {	
 		const raw = this.treeUtils.findNode(this.rawData, addr);
 
-		//console.log("handle_Node_Click","3","raw",raw);
+		
 		// --- ROOT COLLAPSE ---
 		if (addr === this.rawData.address && raw?.children) {
 		//	console.log("handle_Node_Click","4","raw",raw);
@@ -118,7 +146,7 @@ private currentSearchTerm :string="";
 			//  this.child.updateFromParent();
 			return;
 		}
-		//console.log("handle_Node_Click","before_node_exists:","raw:",raw);
+	
 		// --- NODE EXISTS ---
 		if (raw) {
 			if (raw.children?.length) {
@@ -131,10 +159,9 @@ private currentSearchTerm :string="";
 			  raw._children = undefined;
 			}
 			else if (raw.hasChildren) {
-				//console.log("handle_Node_Click","before_node_exists:","raw:",raw.hasChildren);
-					//console.log("handle_Node_Click","before_node_exists:","raw:",raw, " addr:",addr);
+			
 			  const loaded = await this.ensureChildrenRaw(addr);
-		  //console.log("handle_Node_Click","6","loaded",loaded);
+		
 			  if (loaded?.length) {
 				raw.children = loaded;
 				raw._children = undefined;
@@ -290,8 +317,19 @@ const addressFromTZ2 = this.tzIndex.get(term);
   
   
   
+  /*
+  private async loadEmployeesDown(employeeId : string):void {
+	   const nodes = await firstValueFrom(
+    this.orgNodeService.loadEmployeesDown(String(id))
+  );
+
+  if (!nodes?.length) return;
+
+  const root = this.buildTreeFromParentPath(nodes);
+  console.log("root:",root);
   
-  
+  }
+  */
   
   private async loadNextChunk(): Promise<MemoryIndexItem[]> {
   if (this.allLoaded) return [];
@@ -365,16 +403,130 @@ console.log("this_memoryIndex:",this.memoryIndex);
   
   
   
+  private buildTreeFromParentPath(nodes: OrgNode[]): OrgNode {
+  const map = new Map<string, OrgNode>();
+
+  // clone nodes and initialize children arrays
+  nodes.forEach(n => {
+    if (n.id) {
+      map.set(n.id, {
+        ...n,
+        children: [],
+        _children: undefined
+      });
+    }
+  });
+
+const roots = nodes
+  .filter(n => n.id)                   // keep only nodes with non-undefined id
+  .filter(n => !n.parentPath || n.parentPath.length === 0)
+  .map(n => map.get(n.id!)!)     
+
+  // attach children to parents
+  nodes.forEach(n => {
+    if (n.id && n.parentPath && n.parentPath.length > 0) {
+      const parentId = n.parentPath[n.parentPath.length - 1];
+      const parent = map.get(parentId);
+      if (parent) {
+        parent.children!.push(map.get(n.id)!);
+      }
+    }
+  });
+
+  // if exactly one actual root, return it
+  if (roots.length === 1) {
+    return roots[0];
+  }
+
+  // otherwise, create synthetic ROOT node
+  return {
+    id: '__root__',
+    name: 'ROOT',
+    children: roots,
+    hasChildren: roots.length > 0,
+    childrenLoaded: true
+  } as OrgNode;
+}
+  
+  /*
   
   
+  private buildTreeFromParentPath(nodes: OrgNode[]): OrgNode {
+  const map = new Map<string, OrgNode>();
+
+  // clone + index
+  nodes.forEach(n => {
+	  if(n.id){
+    map.set(n.id, {
+      ...n,
+      children: [],
+      _children: undefined
+    });
+	  }
+  });
+
+  const roots = this.findRoots(nodes);
+  const rootDepth = roots[0].parentPath!.length;
+
+  roots.forEach(r => { if(r.id){
+	  console.log("r_id:",r.id);
+	  return map.get(r.id)!['isRoot'] = true
+  }
+  return false;
+	  });
+
+  nodes.forEach(n => {
+	  if(n.id){
+    const current = map.get(n.id)!;
+
+    if (n.parentPath && n.parentPath.length > rootDepth) {
+      const parentId = n.parentPath[n.parentPath.length - 1];
+      const parent = map.get(parentId);
+      if (parent) {
+        parent.children!.push(current);
+      }
+    }
+	  }
+  });
+
+  // If only one root, return it
+  if (roots.length === 1 && roots[0].id) {
+    return map.get(roots[0].id)!;
+  }
+console.log("r_id:",roots);
+  // Otherwise create synthetic container
+return {
+  id: '__root__',
+  name: 'ROOT',
+  children: roots.map(r => {
+	  if(r.id){
+	  return map.get(r.id)!
+	  }
+	  return;
+  }) , // make sure these are OrgNode
+  hasChildren: true,
+  childrenLoaded: true // mark root as loaded
+} as OrgNode;
+}
+
+*/
   
   
+  private getRootParentDepth(nodes: OrgNode[]): number {
+  return Math.min(
+    ...nodes
+      .filter(n => Array.isArray(n.parentPath))
+      .map(n => n.parentPath!.length)
+  );
+}
   
-  
-  
-  
-  
-  
+  private findRoots(nodes: OrgNode[]): OrgNode[] {
+  const minDepth = this.getRootParentDepth(nodes);
+
+  return nodes.filter(
+    n => Array.isArray(n.parentPath) && n.parentPath!.length === minDepth
+  );
+}
   
   
   

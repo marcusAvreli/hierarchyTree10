@@ -6,5 +6,10 @@ import { Component } from '@angular/core';
   styleUrls: ['./org-tree-container.component.scss']
 })
 export class OrgTreeContainerComponent {
+selectedNodeId!: string | number;
 
+  onNodeSelected(id: string | number): void {
+	  console.log("parent_node_selected:",id);
+    this.selectedNodeId = id;
+  }
 }

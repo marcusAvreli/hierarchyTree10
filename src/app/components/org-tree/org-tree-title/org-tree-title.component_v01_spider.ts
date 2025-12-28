@@ -2,9 +2,7 @@ import {
   Component,
   ElementRef,
   AfterViewInit,
-  ViewChild,
-  Output,
-  EventEmitter
+  ViewChild
 } from '@angular/core';
 import { takeUntil, tap,map,firstValueFrom  } from 'rxjs';
 import { OrgNode } from '../../../core/models/org-node.model';
@@ -29,7 +27,6 @@ interface TreeNode {
 export class OrgTreeTitleComponent  implements AfterViewInit {
 
   @ViewChild('svg', { static: true }) svgRef!: ElementRef<SVGSVGElement>;
-@Output() nodeSelected = new EventEmitter<string | number>();
 
   private svg!: any;
   private g!: any;
@@ -51,10 +48,10 @@ private margin = { top: 40, left: 40, right: 40 };
 
 private nodeWidth = 140;
 private nodeHeight = 64;
-private zoomBehavior!: any;
 
 private nodePaddingX = 40;
 private nodePaddingY = 100;
+private zoomBehavior!: any;
 
 // Derived spacing
 private cellX = this.nodeWidth + this.nodePaddingX;
@@ -75,6 +72,22 @@ constructor(private readonly orgNodeService: OrgNodeService
     this.update(this.root);
   }
 
+  // ---------------- SVG ----------------
+  private initSvg() {
+    this.svg = d3.select(this.svgRef.nativeElement);
+	//coordinates of root node
+    this.g = this.svg.append('g').attr('transform', 'translate(400,40)');
+	
+	
+	  // --- Add zoom support ---
+  this.zoomBehavior = d3.zoom()
+    .scaleExtent([0.2, 2]) // min/max zoom
+    .on('zoom', (event: any) => {
+      this.g.attr('transform', event.transform);
+    });
+
+  this.svg.call(this.zoomBehavior as any);
+  }
 
   // ---------------- DATA ----------------
   
@@ -138,55 +151,55 @@ if (!rootNode) return;
 
 		children: [
 		{
-			id: '2a4705155ac1434897f1e7944535599e',
+			id: 'd1',
 			firstName: 'Sarah',
 			lastName: 'Levi',
 			divisionName: 'Finance'
 
 		},
 		{
-			id: '2e89ad2f55ea40c4af1f7fb34bead824',
+			id: 'd2',
 			firstName: 'Amit',
 			lastName: 'Katz',
 			divisionName: 'Engineering'
 
 		},
 		{
-		id: '35a1e7327b90492cb7b63cf1a9eb3698',
+		id: 'd3',
 		firstName: 'Rina',
 		lastName: 'Mor',
 		divisionName: 'HR'
 		}
 		,
 		{
-			id: '3d8b9a8b8eb14adeb32aaff9f60f729c',
+			id: 'd4',
 			firstName: 'Moshe',
 			lastName: 'Azulai',
 			divisionName: 'Sales'
 		}
 		,
 		{
-		id: '5e0e5600b7134e258355003a996501ac',
+		id: 'd5',
 		firstName: 'Tal',
 		lastName: 'Noy',
 		divisionName: 'Marketing'
 		}
 		,
 		{
-		id: 'c3441d8774754ed683191f7dbcd659a3',
+		id: 'd6',
 		firstName: 'Yossi',
 		lastName: 'Halevi',
 		divisionName: 'Support'
 		}
 		,
 		{
-		id: '653f2a1b4b234cd0b770478ba1d869c1',
+		id: 'd7',
 		firstName: 'Dana',
 		lastName: 'Peretz',
 		divisionName: 'Operations'
 		},
 		{
-		id: '4a8f7407315547779bc0bd75530510f2',
+		id: 'd8',
 		firstName: 'Itai',
 		lastName: 'Friedman',
 		divisionName: 'Security'
@@ -220,26 +233,7 @@ if (!rootNode) return;
     this.root.x0 = 0;
     this.root.y0 = 0;
   }
-  
-  
-  
-  // ---------------- SVG ----------------
-  private initSvg() {
-    this.svg = d3.select(this.svgRef.nativeElement);
-	//coordinates of root node
-    this.g = this.svg.append('g').attr('transform', 'translate(400,40)');
-	
-	  // --- Add zoom support ---
-  this.zoomBehavior = d3.zoom()
-    .scaleExtent([0.2, 2]) // min/max zoom
-    .on('zoom', (event: any) => {
-      this.g.attr('transform', event.transform);
-    });
-
-  this.svg.call(this.zoomBehavior as any);
-
-  }
-  
+  /*
   private layoutFirstLevelChess(): void {
   if (!this.root || !this.root.children?.length) return;
 
@@ -248,7 +242,7 @@ if (!rootNode) return;
   // ===== CONFIG =====
   const stepX = this.cellX * 2;     // requested spacing
   const stepY = this.nodeHeight-this.nodeHeight/2+15;// + this.nodePaddingY;
-//console.log("layoutFirstLevelChess: ", " stepY:",stepY, " stepX:",stepX);
+console.log("layoutFirstLevelChess: ", " stepY:",stepY, " stepX:",stepX);
   const wideCount = 4;
   const narrowCount = wideCount - 1;
 
@@ -275,7 +269,7 @@ if (!rootNode) return;
 
       // layout deeper levels relative to this node
       this.layoutSubtree(node);
-/*
+
       this.loggerService.info(
         'layoutFirstLevelChess',
         `row=${row}`,
@@ -283,13 +277,54 @@ if (!rootNode) return;
         `x=${node.x}`,
         `y=${node.y}`
       );
-	  */
     }
 
     row++;
   }
 }
 
+*/
+private layoutFirstLevelChess(): void {
+  if (!this.root || !this.root.children?.length) return;
+
+  const svgEl = this.svgRef.nativeElement;
+  const width = svgEl.clientWidth || 800;
+  const height = svgEl.clientHeight || 600;
+
+  // --- Root in center ---
+  this.root.x = width / 2;
+  this.root.y = height / 2;
+
+  const children = this.root.children;
+  const count = children.length;
+
+  // --- Rectangle-based distribution ---
+  const paddingX = 80; // horizontal padding from edges
+  const paddingY = 40; // vertical padding from edges
+  const availableWidth = width - 2 * paddingX;
+  const availableHeight = height - 2 * paddingY;
+
+  const stepAngle = Math.PI / 2; // max vertical spread (top-bottom)
+  const topY = this.root.y - availableHeight / 2;
+  const bottomY = this.root.y + availableHeight / 2;
+
+  // --- Arrange children evenly around root ---
+  const rows = 2; // top row and bottom row
+  const cols = Math.ceil(count / rows);
+  const stepX = availableWidth / (cols - 1 || 1); // horizontal spacing
+
+  let childIndex = 0;
+
+  for (let row = 0; row < rows; row++) {
+    const y = row === 0 ? this.root.y - 100 : this.root.y + 100; // distance from root
+    for (let col = 0; col < cols && childIndex < count; col++) {
+      const child = children[childIndex++];
+      const x = paddingX + col * stepX;
+      child.x = x;
+      child.y = y;
+    }
+  }
+}
   // ---------------- UPDATE ----------------
 	private update(source: any) {
 
@@ -318,15 +353,7 @@ if (!rootNode) return;
 			.append('g')
 			.attr('class', 'node')
 			.attr('transform', (_:any) => `translate(${source.x0},${source.y0})`)
-			//.on('click', (_ : any, d:any) => this.toggle(d))
-			.on('click', (event: MouseEvent, d: any) => {
-    event.stopPropagation();
-    this.onNodeClicked(d, event.currentTarget as SVGGElement);
-  })
-  .on('dblclick', (event: MouseEvent, d: any) => {
-    event.stopPropagation();
-    this.toggle(d);
-  });
+			.on('click', (_ : any, d:any) => this.toggle(d));
 
 		nodeEnter.append('rect')
 			.attr('x', -this.nodeWidth / 2)
@@ -334,12 +361,7 @@ if (!rootNode) return;
 			.attr('width', this.nodeWidth)
 			.attr('height', this.nodeHeight)
 			.attr('rx', 10)
-			.attr('fill', (d:any) => d.depth === 0 ? '#1e3c95' : '#484795')
-		/*	  .on('click', (event: MouseEvent, d: any) => {
-    event.stopPropagation();
-    this.onNodeClicked(d, event.currentTarget as SVGRectElement);
-  });
-  */
+			.attr('fill', (d:any) => d.depth === 0 ? '#1e3c95' : '#484795');
 		  
 		nodeEnter.append('text')
 			.attr('y', -6)
@@ -434,31 +456,7 @@ private layoutSubtree(parent: any) {
     V ${ty}
   `;
   }
-private onNodeClicked(d: any, nodeEl: SVGGElement): void {
-  this.clearSelection();
-  d.data.selected = true;
-
-  d3.select(nodeEl)
-    .select('rect')
-    .attr('fill', this.getNodeFill(d));
-
-  this.nodeSelected.emit(d.data.id);
-}
-private getNodeFill(d: any): string {
-	console.log("get_node_fill");
-  if (d.data?.selected) {
-    return '#ff9800'; // selected color
-  }
-  return d.depth === 0 ? '#1e3c95' : '#484795';
-}
-private clearSelection(): void {
-  this.g.selectAll('rect')
-    .each((d: any, i:number, nodes : any) => {
-      d.data.selected = false;
-      d3.select(nodes[i])
-        .attr('fill', this.getNodeFill(d));
-    });
-}
+  
 private centerTree(animate = true) {
   const svgEl = this.svgRef.nativeElement;
   const width = svgEl.clientWidth || 800;
@@ -542,7 +540,6 @@ private computeCols(): number {
     return curLen < minLen ? current : minNode;
   });
 }
-
 private fitToScreen() {
   if (!this.root) return;
 
@@ -563,16 +560,16 @@ private fitToScreen() {
   const treeWidth = maxX - minX;
   const treeHeight = maxY - minY;
 
-  // Compute scale to fit inside SVG with 90% margin
+  // Compute scale to fit
   const scale = Math.min(svgWidth / treeWidth, svgHeight / treeHeight) * 0.9;
 
-  // Compute translation to center tree
+  // Compute translation to center
   const translateX = (svgWidth - treeWidth * scale) / 2 - minX * scale;
   const translateY = (svgHeight - treeHeight * scale) / 2 - minY * scale;
 
-  // Apply zoom transform
+  // Apply transform
   const t = d3.zoomIdentity.translate(translateX, translateY).scale(scale);
   this.svg.transition().duration(this.duration).call(this.zoomBehavior.transform, t);
 }
-
 }
+

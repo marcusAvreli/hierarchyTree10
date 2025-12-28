@@ -21,9 +21,9 @@ export class OrgNodeService extends BaseService<OrgNode> {
 	constructor(
 		public override http: HttpClient,
 		@Inject('CONFIG') private readonly config: ConfigService,
-		loggerService: LoggerService
+		logger: LoggerService
 	) {
-		super(http,loggerService);
+		super(http,logger);
 	}
 	/**
 	 * Updates or merges custom HTTP headers for a specific interceptor URL group.
@@ -37,20 +37,25 @@ export class OrgNodeService extends BaseService<OrgNode> {
 		return url;
 	}
 	
-	getChildNodes(
-  parentId: string
-  ,mode:string
-): Observable<OrgNode[]> {
-  const finalUrl = `${this.getServiceUrl()}?mode=${mode}&parentId=${parentId}`;
+	getChildNodes(parentId: string,mode:string): Observable<OrgNode[]> {
+		const finalUrl = `${this.getServiceUrl()}?mode=${mode}&parentId=${parentId}`;
 
-  return this.http
+		return this.http.get<ApiResponse<OrgNode[]>>(finalUrl)
+				.pipe(
+				  tap(res => this.logger.debug('RAW getUserRoles response:', res)),
+				  unwrapApiResponse<OrgNode[]>()
+				);
+	}
+loadEmployeesDown(employeeId : string): Observable<OrgNode[]> {
+ const finalUrl = `${this.getServiceUrl()+'/loadEmployeesDown'}?employeeId=${employeeId}&levels=2`;
+
+	return this.http
     .get<ApiResponse<OrgNode[]>>(finalUrl)
     .pipe(
       tap(res => this.logger.debug('RAW getUserRoles response:', res)),
       unwrapApiResponse<OrgNode[]>()
     );
 }
-
 searchChildren(input : string,mode: string): Observable<OrgNode[]> {
  const finalUrl = `${this.getServiceUrl()+'/search'}?mode=${mode}&searchTerm=${input}`;
 /*

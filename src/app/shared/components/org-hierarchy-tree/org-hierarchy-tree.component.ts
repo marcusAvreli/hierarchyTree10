@@ -1,4 +1,9 @@
-import { Component, ElementRef, Input, AfterViewInit,OnDestroy, OnInit,Output,ViewEncapsulation, ViewChild,EventEmitter } from '@angular/core';
+import { Component, ElementRef, Input, AfterViewInit,OnDestroy, OnInit,Output,ViewEncapsulation, ViewChild,EventEmitter,
+ OnChanges,
+  SimpleChanges
+
+
+ } from '@angular/core';
 import * as d3 from 'd3';
 import * as d3flextree from 'd3-flextree';
 import { Subscription } from 'rxjs';
@@ -10,6 +15,9 @@ const flextree = (d3flextree as any).flextree;
 ///https://github.com/bsv-blockchain/teranode/blob/d73b9ff2e4459e5d55b70396ab1065cee86bc230/ui/dashboard/src/routes/forks/helpers.ts#L102
 //https://github.com/teamapps-org/teamapps/blob/e2f7991872285cb1723aa305a889c179dc8af5e3/teamapps-client/ts/modules/UiTreeGraph.ts#L779
 //https://github.com/bsv-blockchain/teranode/blob/d73b9ff2e4459e5d55b70396ab1065cee86bc230/ui/dashboard/src/routes/forks/helpers.ts#L344
+//https://github.com/UniStuttgart-VISUS/damast/blob/4fa54a0744f076be0840a26dceb43f0c7077f83a/src/vis/religion-hierarchy.ts#L113
+//https://github.com/stiproot/mndy/blob/0ee6fb30ae40548595bfa2b2c025e2d2586d8aea/src/ui/src/expandable-tree/links/link-update.ts
+//https://github.com/asherdrake/lastfm-treemap/blob/31ef4e5bcbd816082907a2b88d3ebb0ef0c32f78/frontend/src/app/shared/treemap/treemap.component.ts
 @Component({
   selector: 'app-org-hierarchy-tree',
  // template: `<div #svgContainer class="svg-container" style="width:100%; height:100%;"></div>`,
@@ -62,26 +70,35 @@ export class OrgHierarchyTreeComponent implements OnInit, OnDestroy, AfterViewIn
 	}
 
 	@Input() set myNodes(value: any) {
-		if (!value) return;
-		console.log("i_called_from","set_my_nodes");
+		console.log("update_trigger_data","this.rawData: ",this.rawData);
+				console.log("update_trigger_data", "myNodes:", this.myNodes);
+				console.log("update_trigger_data", "value:", value);
+		if (!value) {
+			/*this.rawData = value; */return;
+		}
+		
 		// replace old ngOnInit logic
 		this.rawData = value;
+		console.log("update_trigger_data_3", " rawData:", this.rawData);
 		//this.normalizeRawNode(this.rawData);
 		this.treeUtils.normalizeNode(this.rawData);
+		console.log("update_trigger_data_3_1", " rawData:", this.rawData);
 		this.dataReady = true;
+
 		this.tryInit();
+		console.log("update_trigger","set_my_nodes"," end:");
 	}
   
 	constructor(private treeUtils: TreeUtilsService) {}
 
   // ------------------ lifecycle ------------------
 	ngAfterViewInit() {
-		console.log("i_called_from","set_after_view_init");
+		console.log("update_trigger","set_after_view_init");
 		const rect = this.svgContainer.nativeElement.getBoundingClientRect();
-		console.log('SVG viewport:', rect.width, rect.height,this.svgContainer.nativeElement.clientHeight);
+		console.log('update_trigger:', rect.width, rect.height,this.svgContainer.nativeElement.clientHeight);
 		this.updateViewSize();
 		this.viewReady = true;
-		//this.tryInit();
+		this.tryInit();
 
 		// simple resize handler
 		window.addEventListener('resize', () => {
@@ -90,21 +107,42 @@ export class OrgHierarchyTreeComponent implements OnInit, OnDestroy, AfterViewIn
 		});
 
 	}
+/*ngOnChanges(changes: SimpleChanges): void {
+	console.log("tree:", " ng_on_changes",changes);
+		if (!changes['myNodes']) return;
 
+		const current = changes['selectedNodeId'].currentValue;
+		const previous = changes['selectedNodeId'].previousValue;
+		console.log("tree", " ng_on_changes:" ,"before_return:",current);
+		/*if (current == null || current === previous) return;
+		console.log("ng_on_changes:",current);
+		console.log("ng_on_changes:",current);
+		this.onSelectedNodeChanged(current);
+		
+	}
+	*/
 	ngOnInit() {	
 		if (this.updateTrigger) {
 			this.updateTrigger.subscribe(() => {
+				console.log("update_trigger_data_2","this.rawData: ",this.rawData);
+				console.log("update_trigger_data_2", "myNodes:", this.myNodes);
+				
 				console.log("update_trigger");
-				this.update();   // redraw D3
-			});
+				
+				
+					this.tryInit();
+				
+		});}
+			
 		}
-	}
+	
 
 	ngOnDestroy() {
 		window.removeEventListener('resize', () => {});
 	}
 
 	private tryInit() {
+		console.log("viewReady:",this.viewReady, " dataReady:",this.dataReady);
 		if (!this.viewReady || !this.dataReady) return;
 
 		this.createSvg();
@@ -194,7 +232,7 @@ console.log("centerOnAddress","3");
 				}
 			});
 		}
-
+		console.log("update_trigger:",this.rawData);
 		if (!this.rawData) return;
 		// node/card configuration
 		const nodeWidth = 180;
@@ -202,6 +240,7 @@ console.log("centerOnAddress","3");
 		const imageWidth = 40;
 		const padding = 8;
 		const xOffset = 50;
+		console.log("update_trigger:","checkPost_1");
 		// rebuild hierarchy
 		const root = d3.hierarchy(this.rawData, (d: any) => d.children || null);		
 		this.root = root;
@@ -225,13 +264,13 @@ console.log("centerOnAddress","3");
 
 		
 		const links = this.root.links();
-
+		//console.log("update_was_called:",this.rawData, " nodes:",nodes);
 		// apply card config (fields) to nodes
 		
 
-
-		if (!this.firstDrawDone) {
-			console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		console.log("update_trigger:","checkPost_2", " nodes:",nodes, "firstDrawDone:",this.firstDrawDone);
+		if (!this.firstDrawDone && nodes.length ==1) {
+			console.log("update_trigger","!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 			this.g.selectAll('*').remove();
 
 			requestAnimationFrame(() => {
@@ -243,9 +282,10 @@ console.log("centerOnAddress","3");
 			});	
 		} else {
 		  // later updates can animate
-		  
+		//  if(nodes.length >0){
 		
 		  this.centerTree({ mode: 'fit', fitPercent: 30 }, true);
+		  //}
 			
 		}
 
@@ -301,8 +341,8 @@ const cardHeight = padding * 3 + 16+100;
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d')!;
   ctx.font = '0.8em sans-serif';
-	console.log("cardWidth: ", fields);
-	console.log("cardWidth: ", d);
+	//console.log("cardWidth: ", fields);
+	//console.log("cardWidth: ", d);
   const maxTextWidth = Math.max(
     ...fields.map(f =>
       ctx.measureText(`${f.label} : ${d.data[f.key] ?? ''}`).width
@@ -319,7 +359,7 @@ d._maxTextWidth = Math.ceil(maxTextWidth);
   
  
 	
-	 console.log("cardWidth: ",cardWidth ," cardHeight:",cardHeight, " d.cardWidth:",d.cardWidth," d.cardHeight:",d.cardHeight, " nodeHeight:",nodeHeight, " maxTextWidth:" ,maxTextWidth, " padding:",padding );
+	// console.log("cardWidth: ",cardWidth ," cardHeight:",cardHeight, " d.cardWidth:",d.cardWidth," d.cardHeight:",d.cardHeight, " nodeHeight:",nodeHeight, " maxTextWidth:" ,maxTextWidth, " padding:",padding );
 }
 
 
@@ -443,7 +483,7 @@ d._maxTextWidth = Math.ceil(maxTextWidth);
 			.append('g')
 			.attr('class', 'node test')		
 			//.attr('transform', (d:any) => {console.log("draw_nodes:",d.x,minX,d.y, "ROOT_X:",ROOT_X); return `translate(${d.x - minX },${d.y})`})
-			.attr('transform', (d:any) => {console.log("draw_nodes:",d.x,d.y); return `translate(${d.x},${d.y})`})
+			.attr('transform', (d:any) => { return `translate(${d.x},${d.y})`})
 			.on('click', (_event: any, d: any) => this.nodeClick.emit(d.data.id));
 			
 		// Append shapes/text only for entering nodes
@@ -601,51 +641,51 @@ d._maxTextWidth = Math.ceil(maxTextWidth);
 
 
   // ------------------ search ------------------
-  public async search(term: string) {
-   if (!term?.trim()) {
-      this.lastSearch = '';
-      this.rawData._lastSearch = '';
-      this.update();
-	  console.log("search", "search_term_is_empty");
-      return;
-    }
-  console.log("search", "search_in_progress");
-    this.lastSearch = term.toLowerCase();
-    this.rawData._lastSearch = this.lastSearch;
+	public async search(term: string) {
+	   if (!term?.trim()) {
+		  this.lastSearch = '';
+		  this.rawData._lastSearch = '';
+		  this.update();
+		  console.log("search", "search_term_is_empty");
+		  return;
+		}
+		console.log("search", "search_in_progress");
+		this.lastSearch = term.toLowerCase();
+		this.rawData._lastSearch = this.lastSearch;
 
-    // collapse all first
-    const collapseRec = (node: any) => {
-      if (node.children) {
-        node._children = node.children;
-        node.children = undefined;
-        node._children.forEach((c: any) => collapseRec(c));
-      } else if (node._children) {
-        node._children.forEach((c: any) => collapseRec(c));
-      }
-    };
-    collapseRec(this.rawData);
+		// collapse all first
+		const collapseRec = (node: any) => {
+		  if (node.children) {
+			node._children = node.children;
+			node.children = undefined;
+			node._children.forEach((c: any) => collapseRec(c));
+		  } else if (node._children) {
+			node._children.forEach((c: any) => collapseRec(c));
+		  }
+		};
+		collapseRec(this.rawData);
 
-//collapseRec = (node: any)
-  
-
-
-const targets = await this.getTargetsForSearch(term);
-console.log("component_search_targets:",targets, "lastSearch:", this.rawData._lastSearch, " term:",term);//A01.378.610.250.300.792.380
-//await this.collapseNonMatches(this.rawData, targets); // selective collapse
-//console.log("this.rawData._lastSearch:",this.rawData._lastSearch);
-  await this.expandMatches(this.rawData, this.rawData._lastSearch,targets);
-   
-    this.treeUtils.normalizeNode(this.rawData);
-    this.update();
-
-    // optionally center on first match
-    const firstMatchAddr = this.findFirstMatchAddress(this.rawData, this.lastSearch);
-    if (firstMatchAddr) {
-      // wait for layout, then center that node (optional)
-      setTimeout(() => this.centerOnAddress(firstMatchAddr), this.duration + 10);
-    }
 	
-  }
+	  
+
+
+		const targets = await this.getTargetsForSearch(term);
+		console.log("component_search_targets:",targets, "lastSearch:", this.rawData._lastSearch, " term:",term);//A01.378.610.250.300.792.380
+		//await this.collapseNonMatches(this.rawData, targets); // selective collapse
+		//console.log("this.rawData._lastSearch:",this.rawData._lastSearch);
+		await this.expandMatches(this.rawData, this.rawData._lastSearch,targets);
+
+		this.treeUtils.normalizeNode(this.rawData);
+		this.update();
+
+		// optionally center on first match
+		const firstMatchAddr = this.findFirstMatchAddress(this.rawData, this.lastSearch);
+		if (firstMatchAddr) {
+		  // wait for layout, then center that node (optional)
+		  setTimeout(() => this.centerOnAddress(firstMatchAddr), this.duration + 10);
+		}
+	
+	}
   private async expandMatches(node: any, search: string, targets: string[]): Promise<boolean> {
 	  console.log("expandMatches:","node:",node," targets:",targets);
 
@@ -655,7 +695,7 @@ console.log("component_search_targets:",targets, "lastSearch:", this.rawData._la
     search = search.toLowerCase();
 	const addr = this.tzIndex.get(parentTeudatZehut);
     const match = addr?.includes(search);
- console.log("expandMatches:","match:",match," addr:",addr);
+ console.log("expandMatches:","match:",match," addr:",addr, "memoryIndex:",this.memoryIndex);
 const isOnPath = targets.some(t => {
     // Find the MeshIndexItem in memoryIndex
 
@@ -819,7 +859,7 @@ private rectLink(source: any, target: any) {
   if (Math.abs(endX - (tx + childWidth / 2)) > 1) {
     console.warn('LINK X DRIFT', { tx, endX, childWidth, target });
   }
-  console.log('TARGET', {
+  /*console.log('TARGET', {
     x: target.x,
     y: target.y,
     h: target.cardHeight,
@@ -827,6 +867,7 @@ private rectLink(source: any, target: any) {
     expectedTop: target.y,
     expectedCenter: target.y - target.cardHeight / 2
   });
+  */
 
   return `
     M ${startX},${startY}
